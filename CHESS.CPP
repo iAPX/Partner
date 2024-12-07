@@ -9,7 +9,6 @@
 		que par la liaison s‚rie COM1:
 */
 
-
 #pragma hdrfile "chess.sym"
 #include	<stdlib.h>
 #include	<Stdio.h>
@@ -28,6 +27,7 @@
 #include	"eval.cpp"
 #include	"gene.cpp"
 #include	"mats.cpp"
+#include	"elag.cpp"
 #include	"analyse.cpp"
 #include	"biblio.cpp"
 #include	"coms.cpp"
@@ -38,15 +38,22 @@ extern unsigned _stklen = 8192U;
 
 void	main(void)
 { // Module principal ...
-textbackground(0);
-textcolor(7);
 clrscr();
 
-// Vectorisation interruptions Timer & Clavier
+// Vectorisation interruption Timer
 old_timer=getvect( IRQ_TIMER );
 setvect( IRQ_TIMER, irq_decompte );
-old_kbd=getvect( IRQ_KBD );
-setvect( IRQ_KBD, irq_touche );
+
+init_serie(4800);
+
+disable();
+outportb(0x43, 0xB6);
+outportb(0x40, 0);
+outportb(0x40, 4);
+enable();
+
+acquitte_lancement();
+
 
 les_positions=(struct une_position far *) farmalloc( (sizeof(une_position)+16)*64 );
 
@@ -57,8 +64,17 @@ boucle();
 
 farfree( (void far *) les_positions );
 
+
+// Devectorisation interruption Timer
+indique_arret();
+
+disable();
+outportb(0x43, 0xB6);
+outportb(0x40, 0);
+outportb(0x40, 0);
+enable();
+
 setvect( IRQ_TIMER, old_timer);
-setvect( IRQ_KBD, old_kbd);
 }
 
 
@@ -186,10 +202,21 @@ for( compteur=0; compteur<30000; compteur++ )
 	}
 
 second = time(NULL);
-gotoxy( 1, 20);
+gotoxy( 1, 19);
 cprintf("R‚sultat GENE.:%4dus%6ld/s", (int) (difftime(second,first)*33), (long) (30000./difftime(second,first)) );
 
-gotoxy(1,25); cprintf("APPUYEZ SUR UNE TOUCHE !!!");
+/*
+first = time(NULL);
+
+for( compteur=0; compteur<100000; compteur++ )
+	{ cote=(compteur & 1) +1;
+	generateur2(0, cote);
+	}
+
+second = time(NULL);
+gotoxy( 1, 20);
+cprintf("R‚sultat GENE2:%4dus%6ld/s", (int) (difftime(second,first)*10), (long) (100000./difftime(second,first)) );
+*/
 }
 
 
@@ -214,6 +241,13 @@ gotoxy(1, 23); cprintf("                     ");
 gotoxy(1, 22); cprintf("Commande: ");
 
 
+while( kbhit()==0 )
+	{ // Attente d'un paquet ???
+	gotoxy(1,1); cprintf("Paquets:%3d Cars:%4d", inbuf_nbpaq, inbuf_nbcar);
+	if( inbuf_nbpaq ) { lis_requetes(); nosound(); }
+	}
+
+
 gotoxy(11, 22); gets(cmd);
 strupr(cmd);
 gotoxy(1, 24); cprintf("                     ");
@@ -222,10 +256,6 @@ gotoxy(1, 24); cprintf("Demand‚ : '%s'", cmd );
 strcpy( cmd3, cmd); cmd3[4]=0;
 
 if( strcmp(cmd, "*Q")==0  ) return;
-
-
-// INITIALISATION DES ARRETS CLAVIER !!!
-nb_touche_enfoncee=0;
 
 if( strcmp(cmd,"*BENCH")==0 )
 	{ // Benchmark des routines d'‚chec ...
@@ -335,28 +365,78 @@ else if( strcmp(cmd3,"*PC ")==0 )
 	strcpy( tmp_s, &cmd[4] );
 	load_partie( tmp_s );
 	}
-
+else if( strcmp(cmd, "*M1")==0 )
+	{ // Recherche de mat en 1 coup
+	recherche_mat(1);
+	}
 else if( strcmp(cmd,"*M2")==0 )
-	{ fast_mat2(2); }
+	{ recherche_mat(2); }
 else if( strcmp(cmd,"*M3")==0 )
-	{ fast_mat2(3); }
+	{ recherche_mat(3); }
 else if( strcmp(cmd,"*M4")==0 )
-	{ fast_mat2(4); }
+	{ recherche_mat(4); }
 else if( strcmp(cmd,"*M5")==0 )
-	{ fast_mat2(5); }
-else if( strcmp(cmd,"*M6")==0 )
-	{ fast_mat2(6); }
-else if( strcmp(cmd,"*M7")==0 )
-	{ fast_mat2(7); }
-else if( strcmp(cmd,"*M8")==0 )
-	{ fast_mat2(8); }
+	{ recherche_mat(5); }
 
+else if( strcmp(cmd,"*F2")==0 )
+	{ fast_mat(2); }
+else if( strcmp(cmd,"*F3")==0 )
+	{ fast_mat(3); }
+else if( strcmp(cmd,"*F4")==0 )
+	{ fast_mat(4); }
+else if( strcmp(cmd,"*F5")==0 )
+	{ fast_mat(5); }
+else if( strcmp(cmd,"*F6")==0 )
+	{ fast_mat(6); }
+else if( strcmp(cmd,"*F7")==0 )
+	{ fast_mat(7); }
+else if( strcmp(cmd,"*F8")==0 )
+	{ fast_mat(8); }
+
+else if( strcmp(cmd,"*Q2")==0 )
+	{ fast_mat2(2); }
+else if( strcmp(cmd,"*Q3")==0 )
+	{ fast_mat2(3); }
+else if( strcmp(cmd,"*Q4")==0 )
+	{ fast_mat2(4); }
+else if( strcmp(cmd,"*Q5")==0 )
+	{ fast_mat2(5); }
+else if( strcmp(cmd,"*Q6")==0 )
+	{ fast_mat2(6); }
+
+else if( strcmp(cmd3,"*QO ")==0 || strcmp(cmd3,"*QF ")==0 || strcmp(cmd3,"*QP ")==0 )
+	{ // Appel, pour cette position, de la fonction  Quick_prise !!!!
+	px=cmd[4]-64; py=cmd[5]-48;
+	// gvaleur=0;
+
+	if( px>0 && px<9 && py>0 && py<9 )
+		{ // On v‚rifie !!!
+		if( cmd[2]=='O' )
+			{ // Optimal ...
+			valeur=analyse_prise(trait, py, px, QOPTIMAL,0,0);
+			gotoxy(1, 24); cprintf("                        ");
+			gotoxy(1, 24); cprintf("QOPTIMAL (%s) : %d", &cmd[4], valeur);
+			}
+		else if( cmd[2]=='F' )
+			{ // Finale !!!
+			valeur=analyse_prise(trait, py, px, QFINAL ,0,0);
+			gotoxy(1, 24); cprintf("                          ");
+			gotoxy(1, 24); cprintf("QFINAL (%s) : %d", &cmd[4], valeur);
+			}
+		else
+			{ // Possible
+			valeur=analyse_prise(trait, py, px, QPRENABLE, 0,0);
+			gotoxy(1, 24); cprintf("                          ");
+			gotoxy(1, 24); cprintf("QPRENABLE (%s) : %s", &cmd[4], ((valeur>0) ? "OUI" : "NON") );
+			}
+		}
+	}
 else if( strcmp(cmd,"*BV")==0 )
 	{ // Visualisons les premiŠres lignes de la bibliothŠque ...
 	visu_biblio();
 	}
-else if( strcmp(cmd,"*L0")==0 )
-	{ // r‚flexion niveaux 0
+else if( strcmp(cmd,"*L0")==0 || strcmp(cmd,"*L1")==0 || strcmp(cmd,"*L2")==0 || strcmp(cmd,"*L3")==0 )
+	{ // r‚flexion niveaux 0 & 1
 
 	//	Initialiser la partie !!!
 	for(py=1; py<9; py++) for(px=1; px<9; px++)
@@ -367,7 +447,17 @@ else if( strcmp(cmd,"*L0")==0 )
 
 	if( biblio_numcoup<100 ) _fmemcpy( (void far *) &les_positions[biblio_numcoup], (void far *) &la_position, sizeof(une_position) );
 
-	coup=analyse_niveau0();
+
+	if( strcmp(cmd,"*L0")==0 )
+		{ coup=analyse_niveau0(); }
+	else if( strcmp(cmd,"*L1")==0 )
+		{ coup=analyse_niveau1(); }
+	else if( strcmp(cmd,"*L2")==0 )
+		{ coup=analyse_niveau2(0); }
+	else
+		{ coup=analyse_niveau2(1); }
+
+
 	if( coup )
 		{ // Signaler et jouer le coup ...
 		gotoxy(1, 24); cprintf("                          ");
@@ -569,25 +659,6 @@ void	save_partie(char *s)
 { // Sauvegarde la partie sur disque dur
 int		py, px;
 FILE	*fh;
-char	c;
-
-fh=fopen( s, "rb" );
-if( fh!=NULL )
-	{ // Partie d‚ja pr‚sente !!!
-	fclose(fh);
-	gotoxy(1, 24); cprintf("                                      ");
-	gotoxy(1, 24); cprintf("PARTIE DEJA EXISTANTE: ECRASER (O/N) ?");
-
-	for( c=0; c!='O' && c!='o' && c!='N' && c!='n' && c!=27; c=getch() )  ;
-
-	gotoxy(1, 24); cprintf("                                      ");
-	if( c!='O' && c!='o' )
-		{ // On quitte la sauvegarde !!
-		gotoxy(1, 24); cprintf("PARTIE NON ENREGISTREE.");
-		return;
-		}
-	}
-
 
 fh=fopen( s, "wb" );
 if( fh==NULL )
@@ -606,6 +677,105 @@ fclose(fh);
 }
 
 
+void	recherche_mat(int ncoup)
+{ // Recherche -en dialogue clavier- d'un mat en n coups (2n+1  1/2 coups)
+int	nb_rep, py, px, roi_py, roi_px;
+int	p, p2, p3;
+int	fl2, fl3;
+
+int	coup_echec;
+time_t	first, second;
+
+//	Initialiser la partie !!!
+for(py=1; py<9; py++) for(px=1; px<9; px++) echiquier[py][px]=la_partie.p_echiquier[py][px];
+table_roque[1]=la_partie.p_fl_roque;
+trait=la_partie.p_trait;
+
+
+if( ncoup==1 )
+	{ // Recherche d'un mat en 1 seul coup, trŠs simple :
+	coup_echec=mat1(trait, 1);
+	gotoxy(1,24); cprintf("                       ");
+	if( coup_echec )
+		{
+		gotoxy(1,24); cprintf("MAT 1 COUP:");
+		affiche_gene(24, 13, coup_echec );
+		}
+	else
+		{ gotoxy(1,24); cprintf("PAS DE MAT EN 1 COUP!"); }
+
+	}
+else if( ncoup>=2 )
+	{ // Recherche descendante en 2 coups de MATS
+	first = time(NULL);
+
+	coup_echec=mat(trait, 1, ncoup, 6);
+	if( coup_echec==0 ) coup_echec=mat(trait, 1, ncoup, 0);
+	gotoxy(1,24); cprintf("                       ");
+	if( coup_echec )
+		{
+		gotoxy(1,24); cprintf("MAT %1d COUP:", ncoup);
+		affiche_gene(24, 13, coup_echec );
+		}
+	else
+		{ gotoxy(1,24); cprintf("PAS DE MAT EN %1d COUP!", ncoup); }
+
+	second = time(NULL);
+	gotoxy( 1, 25);
+	cprintf("Temps:%4ds", (int) difftime(second,first) );
+	}
+}
+
+
+void	fast_mat(int ncoup)
+{ // Recherche -en dialogue clavier- d'un mat en n coups (2n+1  1/2 coups)
+int	nb_rep, py, px, roi_py, roi_px;
+int	p, p2, p3;
+int	fl2, fl3;
+
+int	coup_echec;
+time_t	first, second;
+
+//	Initialiser la partie !!!
+for(py=1; py<9; py++) for(px=1; px<9; px++) echiquier[py][px]=la_partie.p_echiquier[py][px];
+table_roque[1]=la_partie.p_fl_roque;
+trait=la_partie.p_trait;
+
+
+if( ncoup==1 )
+	{ // Recherche d'un mat en 1 seul coup, trŠs simple :
+	coup_echec=mat1(trait, 1);
+	gotoxy(1,24); cprintf("                       ");
+	if( coup_echec )
+		{
+		gotoxy(1,24); cprintf("MAT 1 COUP:");
+		affiche_gene(24, 13, coup_echec );
+		}
+	else
+		{ gotoxy(1,24); cprintf("PAS DE MAT EN 1 COUP!"); }
+
+	}
+else if( ncoup>=2 )
+	{ // Recherche descendante en 2 coups de MATS, TRES RAPIDE !!!
+	first = time(NULL);
+
+	coup_echec=mat(trait, 1, ncoup, 6);
+	gotoxy(1,24); cprintf("                       ");
+	if( coup_echec )
+		{
+		gotoxy(1,24); cprintf("MAT %1d COUP:", ncoup);
+		affiche_gene(24, 13, coup_echec );
+		}
+	else
+		{ gotoxy(1,24); cprintf("PAS DE MAT EN %1d COUP ???", ncoup); }
+
+	second = time(NULL);
+	gotoxy( 1, 25);
+	cprintf("Temps:%4ds", (int) difftime(second,first) );
+	}
+}
+
+
 void	fast_mat2(int ncoup)
 { // Recherche -en dialogue clavier- d'un mat en n coups (2n+1  1/2 coups)
 int	nb_rep, py, px, roi_py, roi_px;
@@ -615,20 +785,6 @@ int	fl2, fl3;
 int	coup_echec;
 time_t	first, second;
 
-
-// Initialiser les paramˆtres, pour la recherche !!!
-borne_mat_mini=borne_mat_maxi=ncoup;
-param_mat_materiel=0;
-param_mat_mobilite=100;
-param_mat_mobilite_roi=250;
-param_mat_attaque_region_roi=0;
-param_mat_echec=500;
-
-// Initialiser les statistiques
-nb_call_mat1=nb_call_generateur=nb_call_echec=0l;
-nb_mat1_joue=nb_mat1_generateur=0l;
-nb_generes=0l;
-
 //	Initialiser la partie !!!
 for(py=1; py<9; py++) for(px=1; px<9; px++) echiquier[py][px]=la_partie.p_echiquier[py][px];
 table_roque[1]=la_partie.p_fl_roque;
@@ -636,36 +792,24 @@ trait=la_partie.p_trait;
 
 first = time(NULL);
 
-gotoxy(1,24); cprintf("                       ");
-gotoxy(1,24); cprintf("QMAT %1d:", ncoup);
-
-timer_decompteur=999999999l;
-
-gotoxy(9,24); cprintf("3"); coup_echec=quick_mat(trait, 1, ncoup, 3);
-if( coup_echec==0 ) { gotoxy(9,24); cprintf("5"); coup_echec=quick_mat(trait, 1, ncoup, 5); }
-if( coup_echec==0 ) { gotoxy(9,24); cprintf("7"); coup_echec=quick_mat(trait, 1, ncoup, 7); }
-if( coup_echec==0 ) { gotoxy(9,24); cprintf("10"); coup_echec=quick_mat(trait, 1, ncoup,10); }
-if( coup_echec==0 ) { gotoxy(9,24); cprintf("15"); coup_echec=quick_mat(trait, 1, ncoup,15); }
-if( coup_echec==0 ) { gotoxy(9,24); cprintf("**"); coup_echec=quick_mat(trait, 1, ncoup,99); }
+timer_decompteur=36L;
+coup_echec=quick_mat(trait, 1, ncoup, 2);
+if( coup_echec==0 ) { timer_decompteur+=36L; coup_echec=quick_mat(trait, 1, ncoup, 4); }
+if( coup_echec==0 ) { timer_decompteur+=55L; coup_echec=quick_mat(trait, 1, ncoup, 6); }
+if( coup_echec==0 ) { timer_decompteur+=73L; coup_echec=quick_mat(trait, 1, ncoup, 8); }
+if( coup_echec==0 ) { timer_decompteur+=81L; coup_echec=quick_mat(trait, 1, ncoup, 9); }
+if( coup_echec==0 ) { timer_decompteur+=81L; coup_echec=quick_mat(trait, 1, ncoup,10); }
 
 gotoxy(1,24); cprintf("                       ");
 if( coup_echec )
 	{
-	second = time(NULL);
-
-	gotoxy(1,24); cprintf("QMAT %1d:", ncoup);
+	gotoxy(1,24); cprintf("MAT %1d COUP:", ncoup);
 	affiche_gene(24, 13, coup_echec );
-	cprintf(", en%4ds", (int) difftime(second,first) );
-
-	gotoxy(42,20); cprintf("APPEL MAT1:%ld", nb_call_mat1);
-	gotoxy(42,21); cprintf("GENERATEUR:%ld", nb_call_generateur);
-	gotoxy(42,22); cprintf("Nb Generes:%ld", nb_generes);
-	gotoxy(42,23); cprintf("    ECHECS:%ld", nb_call_echec);
-	gotoxy(42,24); cprintf("MAT1-GENE.:%ld", nb_mat1_generateur);
-	gotoxy(42,25); cprintf("MAT1-Jou‚s:%ld", nb_mat1_joue);
 	}
-else if( nb_touche_enfoncee>2 )
-	{ gotoxy(1,24); cprintf("ARRET UTILISATEUR !!!"); }
 else
-	{ gotoxy(1,24); cprintf("PAS DE QMAT EN %1d COUP ???", ncoup); }
+	{ gotoxy(1,24); cprintf("PAS DE MAT EN %1d COUP ???", ncoup); }
+
+second = time(NULL);
+gotoxy( 1, 25);
+cprintf("Temps:%4ds", (int) difftime(second,first) );
 }

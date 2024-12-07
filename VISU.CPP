@@ -7,14 +7,6 @@ void	visu_echiquier(void)
 int		py, px, piece, la_case;
 long	tmp_note;
 
-
-// Titre
-textbackground(7);
-textcolor(0);
-gotoxy(1,25);
-cprintf("  Partenaire  v3.0  ");
-
-
 // Axe des X ...
 textbackground(0);
 textcolor(7);
@@ -54,41 +46,38 @@ for( px=1; px<=8; px++ )
 textbackground(0);
 textcolor(7);
 
+gotoxy(1,12);
+cprintf("CHESS-C  PARTENAIRE  v2.1");
+
 tmp_note=old_eval3(FAUX);
-gotoxy(1, 12);
+gotoxy(1, 13);
 cprintf("Note actuelle pour les Blancs :%8ld", tmp_note);
 
 
 // Affichage num‚ro de coup (biblio)
-gotoxy(1, 13);
-cprintf("Coup%3d : ", (biblio_numcoup+1)/2 );
-if( trait==BLANC ) cprintf(" aux Blancs "); else cprintf(" aux Noirs  ");
+gotoxy(1, 14);
+cprintf("BIBLIO NUMCOUP=%2d", (biblio_numcoup+1)/2 );
+if( biblio_numcoup & 1 ) cprintf(" BLANCS"); else cprintf(" NOIRS ");
+
+
+gotoxy(1, 15);
 if( phase==OUVERTURE ) cprintf("Ouverture");
 if( phase==MILIEU ) cprintf("Milieu   ");
 if( phase==FINALE ) cprintf("Finale   ");
+if( trait==BLANC ) cprintf(" aux Blancs"); else cprintf(" aux Noirs ");
 
-gotoxy(1, 14);
+gotoxy(1, 17);
 cprintf("M‚moire libre:%3ldKo", ( (long) coreleft())/1024l );
 
-gotoxy(1, 15);
+gotoxy(1, 18);
 cprintf("BLANC:");
 if( la_partie.p_fl_roque & GRAND_ROQUE ) cprintf("o-o-o "); else cprintf("      ");
 if( la_partie.p_fl_roque & PETIT_ROQUE ) cprintf("o-o"); else cprintf("   ");
 
-cprintf(" / NOIR :");
+gotoxy(1, 19);
+cprintf("NOIR :");
 if( la_partie.p_fl_roque & (GRAND_ROQUE<<4) ) cprintf("o-o-o "); else cprintf("      ");
 if( la_partie.p_fl_roque & (PETIT_ROQUE<<4) ) cprintf("o-o"); else cprintf("   ");
-
-
-// Mode d'emploi succint !!!
-gotoxy(1,17);
-cprintf("*EI-Init Echiquier   *EE-Eff. Echiquier ");
-gotoxy(1,18);
-cprintf("*L0-Demander coup");
-gotoxy(1,19);
-cprintf("*PC-Charger Partie   *PS-Sauver Partie");
-gotoxy(1,20);
-cprintf("*Mx-Mat en x coups");
 }
 
 
@@ -135,6 +124,7 @@ if( echec( ADVERSE(trait), roi_py, roi_px) ) { gotoxy(50,1); cprintf("ADVERSAIRE
 table_roque[0]=la_partie.p_fl_roque;
 generateur(0, trait);
 
+preselection( OUVERTURE, trait, 0);
 
 for( p=0; p<nb_coups[0] && p<50; p++)
 	{

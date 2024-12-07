@@ -79,24 +79,42 @@ void	load_partie(char *s);
 void	save_partie(char *s);
 void	init_echiquier(void);
 void	visu_echiquier(void);
+void	recherche_mat(int ncoup);
+void	fast_mat(int ncoup);
 void	fast_mat2(int ncoup);
 void	boucle(void);
 
 void	determine_phase(void);
 int		analyse_niveau0(void);			// QMat + 21/2 coups seulement !
+int		analyse_niveau1(void);			// Fonction de base de recherche de coups!!!
+int		analyse_niveau2(int elagage);	// Fonction plus puissante de recherche
 
-int		echec(int cote, int sa_py=0, int sa_px=0);
+int		echec(int cote, int sa_py, int sa_px);
 long	evalue(void);
+long	old_eval(int flag_affiche);
+long	old_eval2(int flag_affiche);
 long	old_eval3(int flag_affiche);
 
-int	generateur(int niveau, int trait, int dernier_coup=0, int * ptr_mob_roi=NULL);
+int	generateur(int niveau, int trait, int dernier_coup=0);
 // int	generateur2(int niveau, int trait);
 void	clouages(int cote, int sa_py, int sa_px);
 void	gene_prises(int niveau, int trait);
 void	tri_coups(int niveau);
+void	preselection(int phase, int trait, int niveau);
+
+
+int		analyse_prises(int cote, int py, int px, int fl, int py_piece, int px_piece);
+long	eval_position(void);
+long	eval_pions(void);
+long	eval_materiel(void);
+long	eval_strategie(void);
+long	eval_attaque_roi(void);
+long	eval_liberte(void);
+long	eval_tactique(void);
 
 
 int		mat1(int trait, int niveau);
+int		mat(int trait, int niveau, int profondeur);
 int		quick_mat(int trait, int niveau, int profondeur, int limite);
 
 
@@ -195,14 +213,6 @@ long	timer_mini=0l;
 long	timer_decompteur=0l;
 
 
-// Donn‚es pour l'indication de touche enfonc‚e au clavier !!!
-#define IRQ_KBD		9
-
-void interrupt (* old_kbd)(...);
-void interrupt far irq_touche(...);
-
-int		nb_touche_enfoncee=0;
-
 
 //	Tables d'attaque, par piŠce ...
 int	attaque_pion[4][4]=
@@ -236,19 +246,24 @@ int	attaque_dame[4][4]=
 	  { 4, 1, 0, 0 } };
 
 
+// Pour le dialogue avec le port s‚rie !!!
+#define	COM1			0x3F8
+#define	COM2			0x2F8
+#define	DECOMPTE_INIT	64
+#define	MAX_REQUETE		16
+#define	LEN_INBUF		2048
 
-// PARAMETRES DE TRAVAIL
-// 1-Pour le mat :
-int		borne_mat_mini, borne_mat_maxi;
-int		param_mat_materiel,
-		param_mat_mobilite, param_mat_mobilite_roi,
-		param_mat_attaque_region_roi,
-		param_mat_echec;
+int	decompte_actuel=1, port_add=COM1;
+int    	inbuf_rempli=0, inbuf_vide=0, inbuf_nbcar=0, inbuf_nbpaq=0;
+int	nb_requetes=0, req_cvc[MAX_REQUETE];
+char	req_data[MAX_REQUETE][128];
+char	inbuf[2048];
 
-
-
-// STATISTIQUES :
-long	nb_call_generateur, nb_call_echec,
-		nb_call_mat1;
-long	nb_generes;
-long	nb_mat1_generateur, nb_mat1_joue;
+void	lis_paquet(char * buf, int *cvc, int *type);
+void	ecris_paquet(char * buf, int cvc, int type);
+void	ecris_car(char c);
+char	lis_car(void);
+void	lis_requetes(void);
+void	acquitte_lancement(void);
+void	indique_arret(void);
+void	init_serie(int vitesse);

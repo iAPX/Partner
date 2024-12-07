@@ -62,6 +62,382 @@ else
 }
 
 
+long	evalue(void)
+{ // Evaluation globale de la position ...
+long	tmp_note=0;
+
+tmp_note+= eval_position() * param_position[phase];
+tmp_note+= eval_pions() * param_pions[phase];
+tmp_note+= eval_materiel() * param_materiel[phase];
+tmp_note+= eval_strategie() * param_strategie[phase];
+tmp_note+= eval_attaque_roi() * param_attaque_roi[phase];
+tmp_note+= eval_liberte() * param_liberte[phase];
+
+return( tmp_note );
+}
+
+
+
+long	eval_position(void)
+{ // Evaluation de la position globale
+return(0);
+}
+
+
+long	eval_pions(void)
+{ // Evalue la structure des pions, les pions doubl‚s, les pions pass‚s
+return(0);
+}
+
+
+long	eval_materiel(void)
+{ // Evaluation correcte de la note du mat‚riel
+return(0);
+}
+
+
+long	eval_strategie(void)
+{ // Evaluation strategique (Attaque/D‚fense/...)
+return(0);
+}
+
+
+long	eval_attaque_roi(void)
+{ // Evaluation de l'attaque du roi adverse, et de sa zone ...
+return(0);
+}
+
+
+long	eval_liberte(void)
+{ // Evaluation des libert‚s de chaque camp, note composite ...
+return(0);
+}
+
+
+
+
+
+//	POUR COMPATIBILITE GARDER (et tester la diff‚rence !!!)
+long	old_eval(int flag_affiche)
+{ // Evaluation de l'‚tat actuel de la partie ...
+int	materiel[4], fou[4], roi_present[4];
+int	mobilite[4];
+int pion_avance[4];
+int	position[4];
+int	en_prise[4], soutenu[4];
+
+int	sa_fourchette, val_fourchette, val_clouage, sa_surcharge, pion_y;
+
+int	piece, cote, dep, dir, py, px, dy, dx,
+	piece2, cote2, dep2, dir2, py2, px2, dy2, dx2,
+	piece3, cote3, dep3, dir3, py3, px3, dy3, dx3;
+int adverse, p, q, dz, v;
+
+long	ponderation_position, ponderation_materiel,
+		ponderation_mobilite;
+
+long	note;
+long	note_materiel, note_mobilite, note_position, note_soutenu;
+
+
+
+// Initialisation des variables employ‚es ...
+note=note_materiel=note_mobilite=note_position=note_soutenu=0l;
+val_fourchette=0;
+for(p=0; p<4; p++)
+	{ fou[p]=roi_present[p]=0;
+	materiel[p]=mobilite[p]=pion_avance[p]=position[p]=en_prise[p]=soutenu[p]=0;
+	}
+
+
+// phase=OUVERTURE;
+cote=trait;
+adverse=3-cote;
+
+
+// 1-Mat‚riel et fourchettes
+for( py=1; py<=8; py++)
+  for( px=1; px<=8; px++)
+	{ piece=echiquier[py][px];
+	if( piece )
+		{ cote=piece & COULEUR;
+		piece&=PIECE;
+
+		if( phase!=FINALE && piece!=PION ) position[cote]=position[cote]+table_position[py][px];
+		if( piece==PION )
+			{ // Gestion des pions ...
+			materiel[cote]++;
+			sa_fourchette=val_fourchette=0;
+			if( cote==BLANC )
+				{
+				pion_y=1;
+				if( phase==FINALE )
+					pion_avance[BLANC]+=py-2;
+				else
+					position[BLANC]+=table_pions[BLANC][py][px]>>3;
+				}
+			else
+				{
+				pion_y=-1;
+				if( phase==FINALE )
+					pion_avance[NOIR]+=7-py;
+				else
+					pion_avance[NOIR]+=table_pions[NOIR][py][px]>>3;
+				}
+
+			if( echiquier[py+pion_y][px]==0 )
+				{ mobilite[cote]++;
+				if( py==2 && cote==BLANC )
+					{ if( echiquier[py+2][px]==0 ) mobilite[cote]++; }
+				else if( py==7 && cote==NOIR )
+					{ if( echiquier[py-2][px]==0 ) mobilite[cote]++; }
+				}
+
+			if( px>1 )
+				{
+				piece2=echiquier[py+pion_y][px-1];
+				if( piece2 )
+					{
+					if( (piece2 & COULEUR)==cote )
+						soutenu[cote]++;
+					else
+						{ mobilite[cote]++;
+						sa_fourchette++;
+						val_fourchette+=valeur_piece[piece2];
+						}
+					}
+				}
+			if( px<8 )
+				{
+				piece2=echiquier[py+pion_y][px+1];
+				if( piece2 )
+					{
+					if( (piece2 & COULEUR)==cote )
+						soutenu[cote]++;
+					else
+						{ mobilite[cote]++;
+						sa_fourchette++;
+						val_fourchette+=valeur_piece[piece2];
+						}
+					}
+				}
+
+			en_prise[adverse]+=sa_fourchette;
+			if( sa_fourchette==2 ) val_fourchette>>=2; else val_fourchette/=6;
+			materiel[cote]+=val_fourchette;
+			}
+		else if( piece==CAVALIER )
+			{ // Gestion des cavaliers
+			materiel[cote]+=4;
+			sa_fourchette=0; sa_surcharge=0; val_fourchette=0;
+			for( dir=0; dir<8; dir++)
+				{ dx=cavalier_x[dir]; dy=cavalier_y[dir];
+				py2=py+dy; px2=px+dx;
+				if( py2>=1 && py2<=8 && px2>=1 && px2<=8 )
+					{ piece2=echiquier[py2][px2]; cote2=piece2 & COULEUR; piece2&=PIECE;
+					if( piece2!=0 && cote2==cote ) sa_surcharge++;
+					if( piece2!=0 && piece2!=PION && cote2!=cote )
+						{ sa_fourchette++; val_fourchette+=valeur_piece[piece2]; }
+					}
+				}
+
+			if( sa_fourchette>3 ) sa_fourchette=3;
+			en_prise[adverse]+=sa_fourchette;
+			if( sa_surcharge>2 ) sa_surcharge=2;
+			soutenu[cote]+=sa_surcharge;
+
+			if( sa_fourchette==2 ) val_fourchette/=3; else val_fourchette/=6;
+			materiel[cote]+=val_fourchette;
+			}
+		else if( piece==FOU || piece==TOUR || piece==DAME )
+			{ // DAME, TOUR & FOU … g‚rer ?
+			if( piece==FOU ) { materiel[cote]+=4; fou[cote]++; }
+			if( piece==TOUR ) { materiel[cote]+=7; }
+			if( piece==DAME ) { materiel[cote]+=9; }
+
+			sa_surcharge=sa_fourchette=val_fourchette=val_clouage=0;
+			if( piece!=FOU )
+				{ // TOUR ou DAME
+				for( dir=0; dir<4; dir++ )
+					{ dy=1; dx=0;
+					if( dir & 1 ) dy=-1;
+					if( dir & 2 ) { dz=dy; dy=dx; dx=dz; }
+					py2=py; px2=px;
+					for( dep=1; dep<8; dep++)
+						{ py2+=dy; px2+=dx;
+						if( py2>0 && py2<9 && px2>0 && px2<9 )
+							{ piece2=echiquier[py2][px2];
+							cote2=piece2 & COULEUR; piece2&=PIECE;
+							if( cote2==cote ) { sa_surcharge++; break; }
+							if( piece2>PION )
+								{ // Ben ce bloc !!!!
+								sa_fourchette++;
+								val_fourchette+=valeur_piece[piece2];
+								}
+							v=valeur_piece[piece];
+							for( dep2=dep; dep2<8; dep2++)
+								{ py2+=dy; px2+=dx;
+								if( py2<1 || py2>8 || px2<1 || px2>8 ) break;
+								piece3=echiquier[py2][px2];
+								if( piece3 )
+									{ cote3=piece3 & COULEUR; piece3&=PIECE;
+									if( cote3==cote ) if( valeur_piece[piece3]>v ) val_clouage+=valeur_piece[piece3];
+									break;
+									}
+								}
+							// Fin test piŠce ...
+							if( piece2==0 || cote2!=cote ) mobilite[cote]++;
+							if( piece2 ) break;
+							}
+						// Fin boucle Dep
+						}
+					}
+				}
+			if( piece!=TOUR )
+				{ // TOUR ou DAME
+				for( dir=0; dir<4; dir++ )
+					{ dy=1; dx=1;
+					if( dir & 1 ) dy=-1;
+					if( dir & 2 ) dx=-1;
+					py2=py; px2=px;
+					for( dep=1; dep<8; dep++)
+						{ py2+=dy; px2+=dx;
+						if( py2>0 && py2<9 && px2>0 && px2<9 )
+							{ piece2=echiquier[py2][px2];
+							cote2=piece2 & COULEUR; piece2&=PIECE;
+							if( cote2==cote ) { sa_surcharge++; break; }
+							if( piece2>PION )
+								{ // Ben ce bloc !!!!
+								sa_fourchette++;
+								val_fourchette+=valeur_piece[piece2];
+								}
+							v=valeur_piece[piece];
+							for( dep2=dep; dep2<8; dep2++)
+								{ py2+=dy; px2+=dx;
+								if( py2<1 || py2>8 || px2<1 || px2>8 ) break;
+								piece3=echiquier[py2][px2];
+								if( piece3 )
+									{ cote3=piece3 & COULEUR; piece3&=PIECE;
+									if( cote3==cote ) if( valeur_piece[piece3]>v ) val_clouage+=valeur_piece[piece3];
+									break;
+									}
+								}
+							// Fin test piŠce ...
+							if( piece2==0 || cote2!=cote ) mobilite[cote]++;
+							if( piece2 ) break;
+							}
+						// Fin boucle Dep
+						}
+					}
+				}
+			// Fin gestion Tour, Fou, Dame
+			if( sa_fourchette==2 ) val_fourchette/=4; else val_fourchette/=6;
+			if( sa_fourchette==1 ) val_clouage/=4; else val_clouage/=6;
+			materiel[cote]+=val_fourchette+val_clouage;
+			if( sa_fourchette>2 ) sa_fourchette=2;
+			en_prise[adverse]+=sa_fourchette;
+			if( sa_surcharge>2 ) sa_surcharge=2;
+			soutenu[cote]+=sa_surcharge;
+			}
+		else if( piece==ROI )
+			{ // Gestion du ROI !!!
+			roi_present[cote]=1;
+			for( dy=-1; dy<=1; dy++)
+				{
+				for( dx=-1; dx<=1; dx++ )
+					{
+					if( dy!=0 && dx!=0 )
+						{ // Juste pour les 8 cases p‚riph‚riques
+						py2=py+dy; px2=px+dx;
+						if( py2>0 && py2<9 && px2>0 && px2<9 )
+							{
+							piece2=echiquier[py2][px2];
+							if( (piece2 & COULEUR)!=cote ) mobilite[cote]++;
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+
+if( roi_present[trait]==0 ) return(-999999);
+if( roi_present[3-trait]==0 ) return(999999);
+if( fou[BLANC]==2 ) materiel[BLANC]++;
+if( fou[NOIR]==2 ) materiel[NOIR]++;
+
+if( phase==OUVERTURE )
+	{ // Pond‚ration sur l'ouverture
+	ponderation_mobilite=  5; // 100;
+	ponderation_materiel=100; // 800;
+	ponderation_position=  2; //100;
+
+	if( echiquier[1][2]==CAVALIER+BLANC ) position[BLANC]-=5;
+	if( echiquier[1][7]==CAVALIER+BLANC ) position[BLANC]-=5;
+	if( echiquier[8][2]==CAVALIER+NOIR ) position[NOIR]-=5;
+	if( echiquier[8][7]==CAVALIER+NOIR ) position[NOIR]-=5;
+
+	if( echiquier[2][4]==PION+BLANC && echiquier[2][5]==PION+BLANC ) position[BLANC]-=10;
+	if( echiquier[7][4]==PION+NOIR && echiquier[7][5]==PION+NOIR ) position[NOIR]-=10;
+
+	if( echiquier[1][4]!=DAME+BLANC ) position[BLANC]-=2;
+	if( echiquier[8][4]!=DAME+NOIR ) position[NOIR]-=2;
+	}
+else if( phase==MILIEU )
+	{
+	ponderation_mobilite= 10; // 100;
+	ponderation_materiel=100; // 600;
+	ponderation_position=  5; // 80;
+
+	if( echiquier[1][2]==CAVALIER+BLANC ) position[BLANC]-=20;
+	if( echiquier[1][7]==CAVALIER+BLANC ) position[BLANC]-=20;
+	if( echiquier[8][2]==CAVALIER+NOIR ) position[NOIR]-=15;
+	if( echiquier[8][7]==CAVALIER+NOIR ) position[NOIR]-=15;
+
+	if( echiquier[2][4]==PION+BLANC && echiquier[2][5]==PION+BLANC ) position[BLANC]-=40;
+	if( echiquier[7][4]==PION+NOIR && echiquier[7][5]==PION+NOIR ) position[NOIR]-=40;
+	}
+else if( phase==FINALE )
+	{
+	ponderation_mobilite= 15;
+	ponderation_materiel=100;
+	ponderation_position=  5;
+	}
+
+// Cr‚ons les notes de la position, pour les blancs...
+note_mobilite=(mobilite[BLANC]-mobilite[NOIR]) * ponderation_mobilite;
+note_materiel=(materiel[BLANC]-materiel[NOIR]) * ponderation_materiel;
+soutenu[BLANC]=soutenu[BLANC]-en_prise[BLANC]*2;
+soutenu[NOIR]=soutenu[NOIR]-en_prise[NOIR]*2;
+note_soutenu=soutenu[BLANC]-soutenu[NOIR];
+note_position=position[BLANC]-position[NOIR];
+if( phase==FINALE ) note_position+=pion_avance[BLANC]-pion_avance[NOIR];
+note_position=(note_position*ponderation_position) / 100L; // Plus de division ?!?
+
+note=note_mobilite + note_materiel + note_soutenu + note_position;
+
+
+if( flag_affiche )
+	{ // Affichages des valeurs ...
+	gotoxy(60, 3); cprintf("MATERIEL:%4d %4d", materiel[BLANC], materiel[NOIR] );
+	gotoxy(60, 4); cprintf("MOBILITE:%4d %4d", mobilite[BLANC], mobilite[NOIR] );
+	gotoxy(60, 5); cprintf("EN PRISE:%4d %4d", en_prise[BLANC], en_prise[NOIR] );
+	gotoxy(60, 6); cprintf("SOUTENUS:%4d %4d", soutenu[BLANC],  soutenu[NOIR]  );
+	gotoxy(60, 7); cprintf("PROMO.  :%4d %4d", pion_avance[BLANC], pion_avance[NOIR] );
+	gotoxy(60, 8); cprintf("POSITION:%4d %4d", position[BLANC], position[NOIR] );
+
+	gotoxy(60,10); cprintf("NOTE MOBILITE=%6ld", note_mobilite);
+	gotoxy(60,11); cprintf("NOTE MATERIEL=%6ld", note_materiel);
+	gotoxy(60,12); cprintf("NOTE SOUTENU =%6ld", note_soutenu);
+	gotoxy(60,13); cprintf("NOTE POSITION=%6ld", note_position);
+	gotoxy(60,14); cprintf("NOTE GLOBALE =%6ld", note);
+	}
+
+if( trait!=BLANC ) note=-note;
+return( note );
+}
+
+
 
 //	Routine d'‚chec, …-priori bonne … 100% (?!?)
 int	echec(int cote, int sa_py, int sa_px)
@@ -70,16 +446,6 @@ int		piece;
 int		d=-1, py, px;
 int		p, q, py2, px2, py3, px3, dy, dx, dz;
 int		adverse=3-cote;
-
-nb_call_echec++;
-
-if( sa_py==0 && sa_px==0 )
-	{ // Recherchons le roi !!!
-	for(py=1; py<=8; py++) for(px=1; px<=8; px++)
-		if( echiquier[py][px]==ROI+cote ) { sa_py=py; sa_px=px; py=8; px=8; }
-
-	if( sa_py==0 ) return(0);
-	}
 
 
 if( cote==NOIR ) d=1;
@@ -221,6 +587,246 @@ for( p=0; p<4; p++)
 }
 
 
+// Mˆme routine pour connaŒtre les piŠces en prise, avec la liste des prises ...
+
+
+
+
+// Nouvelle routine d'‚valuation, semi-bonne
+long	old_eval2(int flag_affiche)
+{ // Evaluation de l'‚tat actuel de la partie ...
+int	materiel[4], fou[4], roi_present[4];
+int	mobilite[4];
+int pion_avance[4];
+int	position[4];
+
+int	pion_y;
+
+int	piece, cote, dep, dir, py, px, dy, dx,
+	piece2, cote2, dep2, dir2, py2, px2, dy2, dx2,
+	piece3, cote3, dep3, dir3, py3, px3, dy3, dx3;
+int p, q, dz, v;
+
+long	ponderation_position, ponderation_materiel,
+		ponderation_mobilite;
+
+long	note;
+long	note_materiel, note_mobilite, note_position;
+
+
+
+// Initialisation des variables employ‚es ...
+note=note_materiel=note_mobilite=note_position=0l;
+for(p=0; p<4; p++)
+	{ fou[p]=roi_present[p]=0;
+	materiel[p]=mobilite[p]=pion_avance[p]=position[p]=0;
+	}
+
+
+// phase=OUVERTURE;
+cote=trait;
+
+
+// 1-Mat‚riel
+for( py=1; py<=8; py++)
+  for( px=1; px<=8; px++)
+	{ piece=echiquier[py][px];
+	if( piece )
+		{ cote=piece & COULEUR;
+		piece&=PIECE;
+
+		if( phase!=FINALE && piece!=PION ) position[cote]=position[cote]+table_position[py][px];
+		if( piece==PION )
+			{ // Gestion des pions ...
+			materiel[cote]++;
+			if( cote==BLANC )
+				{
+				pion_y=1;
+				if( phase==FINALE )
+					pion_avance[BLANC]+=py-2;
+				else
+					position[BLANC]+=table_pions[BLANC][py][px]>>3;
+				}
+			else
+				{
+				pion_y=-1;
+				if( phase==FINALE )
+					pion_avance[NOIR]+=7-py;
+				else
+					pion_avance[NOIR]+=table_pions[NOIR][py][px]>>3;
+				}
+
+			if( echiquier[py+pion_y][px]==0 )
+				{ mobilite[cote]++;
+				if( py==2 && cote==BLANC )
+					{ if( echiquier[py+2][px]==0 ) mobilite[cote]++; }
+				else if( py==7 && cote==NOIR )
+					{ if( echiquier[py-2][px]==0 ) mobilite[cote]++; }
+				}
+
+			if( px>1 )
+				{
+				piece2=echiquier[py+pion_y][px-1];
+				if( (piece2 & COULEUR)!=cote ) mobilite[cote]++;
+				}
+			if( px<8 )
+				{
+				piece2=echiquier[py+pion_y][px+1];
+				if( piece2 )
+					{
+					if( (piece2 & COULEUR)!=cote ) mobilite[cote]++;
+					}
+				}
+			}
+		else if( piece==CAVALIER )
+			{ // Gestion des cavaliers
+			materiel[cote]+=4;
+			for( dir=0; dir<8; dir++)
+				{ dx=cavalier_x[dir]; dy=cavalier_y[dir];
+				py2=py+dy; px2=px+dx;
+				if( py2>=1 && py2<=8) if( px2>=1 && px2<=8 )
+					{ cote2=piece2 & COULEUR;
+					if( cote2!=cote ) mobilite[cote]++;
+					}
+				}
+			}
+		else if( piece==FOU || piece==TOUR || piece==DAME )
+			{ // DAME, TOUR & FOU … g‚rer ?
+			if( piece==FOU ) { materiel[cote]+=4; fou[cote]++; }
+			if( piece==TOUR ) { materiel[cote]+=7; }
+			if( piece==DAME ) { materiel[cote]+=9; }
+
+			if( piece!=FOU )
+				{ // TOUR ou DAME
+				for( dir=0; dir<4; dir++ )
+					{ dy=1; dx=0;
+					if( dir & 1 ) dy=-1;
+					if( dir & 2 ) { dz=dy; dy=dx; dx=dz; }
+					py2=py; px2=px;
+					for( dep=1; dep<8; dep++)
+						{ py2+=dy; px2+=dx;
+						if( py2>0 && py2<9 && px2>0 && px2<9 )
+							{ piece2=echiquier[py2][px2];
+							cote2=piece2 & COULEUR;
+							if( cote2!=cote ) mobilite[cote]++;
+							if( piece2 ) break;
+							}
+						}
+					}
+				}
+			if( piece!=TOUR )
+				{ // TOUR ou DAME
+				for( dir=0; dir<4; dir++ )
+					{ dy=1; dx=1;
+					if( dir & 1 ) dy=-1;
+					if( dir & 2 ) dx=-1;
+					py2=py; px2=px;
+					for( dep=1; dep<8; dep++)
+						{ py2+=dy; px2+=dx;
+						if( py2>0 && py2<9 && px2>0 && px2<9 )
+							{ piece2=echiquier[py2][px2];
+							cote2=piece2 & COULEUR;
+							if( piece2==0 || cote2!=cote ) mobilite[cote]++;
+							if( piece2 ) break;
+							}
+						}
+					}
+				}
+			// Fin gestion Tour, Fou, Dame
+			}
+		else if( piece==ROI )
+			{ // Gestion du ROI !!!
+			roi_present[cote]=1;
+			for( dy=-1; dy<=1; dy++)
+				{
+				for( dx=-1; dx<=1; dx++ )
+					{
+					if( dy!=0 && dx!=0 )
+						{ // Juste pour les 8 cases p‚riph‚riques
+						py2=py+dy; px2=px+dx;
+						if( py2>0 && py2<9 && px2>0 && px2<9 )
+							{
+							piece2=echiquier[py2][px2];
+							if( (piece2 & COULEUR)!=cote ) mobilite[cote]++;
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+
+if( roi_present[trait]==0 ) return(-999999);
+if( roi_present[3-trait]==0 ) return(999999);
+if( fou[BLANC]==2 ) materiel[BLANC]++;
+if( fou[NOIR]==2 ) materiel[NOIR]++;
+
+if( phase==OUVERTURE )
+	{ // Pond‚ration sur l'ouverture
+	ponderation_mobilite=  5; // 100;
+	ponderation_materiel=100; // 800;
+	ponderation_position=  2; //100;
+
+	if( echiquier[1][2]==CAVALIER+BLANC ) position[BLANC]-=5;
+	if( echiquier[1][7]==CAVALIER+BLANC ) position[BLANC]-=5;
+	if( echiquier[8][2]==CAVALIER+NOIR ) position[NOIR]-=5;
+	if( echiquier[8][7]==CAVALIER+NOIR ) position[NOIR]-=5;
+
+	if( echiquier[2][4]==PION+BLANC && echiquier[2][5]==PION+BLANC ) position[BLANC]-=10;
+	if( echiquier[7][4]==PION+NOIR && echiquier[7][5]==PION+NOIR ) position[NOIR]-=10;
+
+	if( echiquier[1][4]!=DAME+BLANC ) position[BLANC]-=2;
+	if( echiquier[8][4]!=DAME+NOIR ) position[NOIR]-=2;
+	}
+else if( phase==MILIEU )
+	{
+	ponderation_mobilite= 10; // 100;
+	ponderation_materiel=100; // 600;
+	ponderation_position=  5; // 80;
+
+	if( echiquier[1][2]==CAVALIER+BLANC ) position[BLANC]-=20;
+	if( echiquier[1][7]==CAVALIER+BLANC ) position[BLANC]-=20;
+	if( echiquier[8][2]==CAVALIER+NOIR ) position[NOIR]-=15;
+	if( echiquier[8][7]==CAVALIER+NOIR ) position[NOIR]-=15;
+
+	if( echiquier[2][4]==PION+BLANC && echiquier[2][5]==PION+BLANC ) position[BLANC]-=40;
+	if( echiquier[7][4]==PION+NOIR && echiquier[7][5]==PION+NOIR ) position[NOIR]-=40;
+	}
+else if( phase==FINALE )
+	{
+	ponderation_mobilite= 15;
+	ponderation_materiel=100;
+	ponderation_position=  5;
+	}
+
+// Cr‚ons les notes de la position, pour les blancs...
+note_mobilite=(mobilite[BLANC]-mobilite[NOIR]) * ponderation_mobilite;
+note_materiel=(materiel[BLANC]-materiel[NOIR]) * ponderation_materiel;
+note_position=position[BLANC]-position[NOIR];
+if( phase==FINALE ) note_position+=pion_avance[BLANC]-pion_avance[NOIR];
+note_position=(note_position*ponderation_position) / 100L; // Plus de division ?!?
+
+note=note_mobilite + note_materiel + note_position;
+
+
+if( flag_affiche )
+	{ // Affichages des valeurs ...
+	gotoxy(60, 3); cprintf("MATERIEL:%4d %4d", materiel[BLANC], materiel[NOIR] );
+	gotoxy(60, 4); cprintf("MOBILITE:%4d %4d", mobilite[BLANC], mobilite[NOIR] );
+	gotoxy(60, 7); cprintf("PROMO.  :%4d %4d", pion_avance[BLANC], pion_avance[NOIR] );
+	gotoxy(60, 8); cprintf("POSITION:%4d %4d", position[BLANC], position[NOIR] );
+
+	gotoxy(60,10); cprintf("NOTE MOBILITE=%6ld", note_mobilite);
+	gotoxy(60,11); cprintf("NOTE MATERIEL=%6ld", note_materiel);
+	gotoxy(60,13); cprintf("NOTE POSITION=%6ld", note_position);
+	gotoxy(60,14); cprintf("NOTE GLOBALE =%6ld", note);
+	}
+
+if( trait!=BLANC ) note=-note;
+return( note );
+}
+
+
 
 // Evaluation semi-bonne, avec d‚veloppement pris en compte et QPrise !
 long	old_eval3(int flag_affiche)
@@ -288,6 +894,11 @@ for( py=1; py<=8; py++)
 	if( piece )
 		{ cote=piece & COULEUR; adversaire=ADVERSE(cote);
 		piece&=PIECE;
+
+
+		// Gestion des attaques, FORTES !!!
+		// tmp_prise=analyse_prise( adversaire, py, px, QOPTIMAL, 0, 0);
+		// if( tmp_prise>prise_maxi[adversaire] ) prise_maxi[adversaire]=tmp_prise;
 
 
 		if( piece==PION )
