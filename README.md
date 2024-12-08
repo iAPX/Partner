@@ -18,9 +18,13 @@ A new life for old code!
 
 
 ## Configuration
-PC-AT compatible with 80286 or later CPU, MS-DOS 4+, 512KB RAM, 1 floppy, any display card (CGA, EGA, VGA, Hercules, etc.) as display is done in text mode through BIOS calls.
+PC-AT compatible with 80286 or later CPU, MS-DOS 5+, 512KB RAM, 1 floppy, any display card (CGA, EGA, VGA, Hercules, etc.) as display is done in text mode through BIOS calls. That's enough to run the code.
 
 CHESS.EXE and and BIBLIO.DAT are the only needed files, 550KB total.
+
+I recommend a 1MB+ PC-AT 286 or 386 to code, Hard Drive, MS-DOS 5+ and Turbo C 2+.<br/>
+While you could develop under Windows 3.x and make it run, fact is if the memory is protected, the IRQ and moreover hardware registers for both the system timer and rs232c controller are not. And this badboy plays with IRQ and hardware registers.<br/>
+Windows 3.x was not made to protect from these kind of bad behaviours!
 
 
 ## Virtual Config
