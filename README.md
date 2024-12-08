@@ -169,7 +169,7 @@ Sent packet is type \x30, containing "OKAY" as a 4-Bytes payload.
 For each line (1 to 8) and for each column (A .. H), A1, A2, A3 .. A8, B1, B2, etc.<br/>
 Each character contains a piece or an empty square (space \x20), pieces are represented by the French initial, P=Pion/Pawn, T=Tour/Rook, C=Cavalier/Knight, F=Fou/Bishop, D=Dame/Queen, R=Roi/King.<br/>
 Each piece is in uppercase if white and lowercase if black.<br/>
-Notice a real blunder: castling informations are not transmitted!<br/>
+Notice a real blunder: castling informations are not transmitted! The 7 '*' was meant to transmit this information, but it was not taken into account a that time (December 1994). A real blunder, a shame, that I will correct on the long run.<br/>
 
 Example of board at game start data (3 lines) : `TCFDRFCTPPPPPPPP        ...        pppppppptcfdrfct`<br/>
 Packet data looks like `POSITION ******* TCFDRFCTPPPPPPPP        ...        pppppppptcfdrfct`<br/>
@@ -181,7 +181,7 @@ LEVEL is a digit 0=weakest, 1=really weak, 2=still weak, but could beat an aslee
 
 Partner answer either with a \x30 type packet containing "PERDU" 5-Bytes payload meaning LOST, either with a move.<br/>
 `o-o-o` Queenside castling, `o-o` Kingside castling, `{START_LINE}{START_COL}{DEST_LINE}{DEST_COL}` a move, for example "F7E8".<br/>
-Notice that while promotions are supported, Partner don't generate subpromotions to simplify, and hopefully it never did go so far in the game without being crushed!<br/>
+Notice that while promotions are supported, Partner don't generate subpromotions to simplify, and hopefully it never did go so far in the game without being crushed first!<br/>
 
 Example of packet (type \x30): `ETUDE N 2` meaning studying the position as black side, trying to avoid loosing from a kid!<br/>
 
@@ -189,18 +189,22 @@ Example of answer (type \x30) : `F7E8` for example a pawn in F7 capturing a piec
 
 
 ### OST Protocol security hole
-The fun part was the X25/X27 network lets users transmit STX \x02 and ETX \x03 characters in the payload and the OST Multi-X25 was also transparent to it pushing them on the RS232C serial protocol as data, while using the same as markers for start and end of a packet.
+The fun part was the X25/X27 network lets users transmit STX \x02 and ETX \x03 characters in the payload and the OST Multi-X25 was also transparent to it pushing them on the RS232C serial protocol as data, while using the same as markers for start and end of a packet.<br/>
+What could go wrong?
 
-Result was that someone could put an ETX character, followed by a STX character, a random CVC logical connection and usually a \0x32 meaning Disconnection, to close another connection (or sometimes itself!) on the Minitel server.<br/>
-Someone could statistically close connection of more than half the user of its link, thus more than 16 or 32 users on average!<br/>
+Result was that someone could put an ETX character, followed by a STX character, a random CVC logical connection and usually a \x32 meaning Disconnection, to close another connection (or sometimes itself!) on the Minitel server.<br/>
+Notice that disconnection packet is 4 characters/Bytes. Counting the ETC needed, you could put 29 of them in one packet to disconnect 29 users usually including yourself. On the second try you will disconnect the rest by targeting CVC at 29 and over (and not yourself).<br/>
+So only 2 packets and you empty a link to a X25/X27 network...
 
-On our own emulation of OST Multi-X25 with PC, we filtered thee 2 cars, end of the story.
+On our own emulation of OST Multi-X25 with PC and OST PC-XNET cards, we filtered these 2 cars, end of the story.<br/>
+Maybe we should just have disconnected the user sending them to send a clear message? I was rogue but not that rogue.
 
 But we still had some very expensive OST Multi-X25 boxes that we used and had this security hole.<br/>
-We stopped treating Disconnection as direct disconnection, but instead immediately send a packet to the Multi-X25 to know the status of the buffer of this CVC logical connection.<br/>
+We stopped treating Disconnection as direct disconnection, but instead immediately sent a packet to the Multi-X25 to know the status of the buffer of this CVC logical connection.<br/>
 On really disconnected CVC, answer was different, so we used the answer as a validation for disconnection and did it.<br/>
 We also processed connection on an not-yet-totally-disconnected CVC logical connection as aa true disconnection followed by a new one, to avoid problem when aa disconnection is not yet confirmed.<br/>
 
 It was handled first on Minitel servers, then on our routers transparently.<br/>
+Worked as expected by not having this threat used against us.
 
 It wasn't perfect, because if someone had known our workaround, after forging Disconnect \x32 packets, it would have forged Connect \x31 packets to validate the disconnection in the same payload, thus before we had an answer from the Multi-X25.<br/>
