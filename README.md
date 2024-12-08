@@ -28,7 +28,12 @@ Windows 3.x was not made to protect from these kind of bad behaviours!
 
 
 ## Virtual Config
-@TODO working on that
+There are plans, options. This will evolve, so...
+
+- Use a PC VM or Emulator, with emulated floppy disk containing the CHESS.EXE and the BIBLIO.DAT, with ability to plug serial communication to host's /dev/{something}
+- Slightly modified C code to enable GCC compilation and CLI parameter (filename for example or command) with stdout returning chosen move.
+- Largely modified C code to enable GCC compilation and simple and native integration to Lichess and Chess.com
+- x86 code interpreter and PC emulator to run the code as-is, but all handmade. The complex and funny option.
 
 
 ## Keyboard commands
