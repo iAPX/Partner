@@ -17,18 +17,24 @@ So 30 years laters, retrieving my old and very ugly code, I feel it's cool to ha
 A new life for old code!
 
 
+## BUGS and security holes
+There's a lot of bugs in this code, some are security holes.
+Partner worked perfectly fine for months consecutively in its environment. Perfectly stable in *THAT* usage.
+
+
 ## Configuration
-PC-AT compatible with 80286 or later CPU, MS-DOS 5+, 512KB RAM, 1 floppy, any display card (CGA, EGA, VGA, Hercules, etc.) as display is done in text mode through BIOS calls. That's enough to run the code.
+PC-AT compatible with 80386 or later CPU, MS-DOS 5+, 512KB RAM, 1 floppy, any display card (CGA, EGA, VGA, Hercules, etc.) as display is done in text mode through BIOS calls.
+That's enough to run CHESS.EXE
 
 CHESS.EXE and and BIBLIO.DAT are the only needed files, 550KB total.
 
-I recommend a 1MB+ PC-AT 286 or 386 to code, Hard Drive, MS-DOS 5+ and Turbo C 2+.<br/>
+I recommend a 1MB+ PC-AT 486 to code, Hard Drive, MS-DOS 5+ and Borland C++ 3.1.<br/>
 While you could develop under Windows 3.x and make it run, fact is if the memory is protected, the IRQ and moreover hardware registers for both the system timer and rs232c controller are not. And this badboy plays with IRQ and hardware registers.<br/>
 Windows 3.x was not made to protect from these kind of bad behaviours!
 
 
 ## Virtual Config
-There are plans, options. This will evolve, so...
+There are plans, options. I am using DosBox-X at this time.
 
 - Use a PC VM or Emulator, with emulated floppy disk containing the CHESS.EXE and the BIBLIO.DAT, with ability to plug serial communication to host's /dev/{something}
 - Slightly modified C code to enable GCC compilation and CLI parameter (filename for example or command) with stdout returning chosen move.
