@@ -37,6 +37,8 @@ There are plans, options. This will evolve, so...
 
 
 ## Keyboard commands
+Source: [CHESS.CPP](./CHESS.CPP)<br/>
+
 While Partner is designed to be used through COM1 RS232C port @ 4800 bps, it is also usable from the keyboard and display pieces on screen, to ease debugging, elsewhere I would have needed another computer just to try it! This is a side-effect of MS-DOS!<br/>
 <br/>
 Commands are indicated in UPPERCASE but are case insenstive, so `*q` is processed as `*Q`.<br/>
@@ -73,7 +75,7 @@ Takeback:<br/>
 `--` - 2 dashes to get back 1 ply. C coder at work ;)<br/>
 
 
-### Setup a position
+### Setting up a position
 
 `*EE` - Clear the board. "Échiquier Efface"<br/>
 
@@ -123,6 +125,8 @@ There are available files and position if you want to try them.
 
 
 ## RS232C COM1 OST Protocol
+Source [COMS.CPP](./COMS.CPP)
+
 This is where it is related to Minitel Services, not only because it is interfaced with Minitel servers (PCs), but it also use a proprietary protocol meant for transporting X25/X27 packets through RS232C serial ports.<br/>
 The protocol has been created by French OST (Ouest Standard Télématique) for it's Multi-X25 protocol converter that interface X25/X27 network with RS232C.<br/>
 
