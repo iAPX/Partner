@@ -34,7 +34,7 @@ Windows 3.x was not made to protect from these kind of bad behaviours!
 
 
 ## Virtual Config
-There are plans, options. I am using DosBox-X at this time.
+There are plans, options. I am enjoying [DosBox-X](https://github.com/joncampbell123/dosbox-x/) at this time.
 
 - Use a PC VM or Emulator, with emulated floppy disk containing the CHESS.EXE and the BIBLIO.DAT, with ability to plug serial communication to host's /dev/{something}
 - Slightly modified C code to enable GCC compilation and CLI parameter (filename for example or command) with stdout returning chosen move.
