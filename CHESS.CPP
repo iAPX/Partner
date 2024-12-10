@@ -1,17 +1,17 @@
 
 /*
-		Programme d'‚chec :
+		Programme d'ï¿½chec :
 
-		Module destin‚ … servir de partenaire automatique pour les
-		services t‚l‚matiques de la synergie  DIAGO-LE FOU-E2E4-ELO.
+		Module destinï¿½ ï¿½ servir de partenaire automatique pour les
+		services tï¿½lï¿½matiques de la synergie  DIAGO-LE FOU-E2E4-ELO.
 
-		Ce module fonctionne via le clavier et l'‚cran du PC, ainsi
-		que par la liaison s‚rie COM1:
+		Ce module fonctionne via le clavier et l'ï¿½cran du PC, ainsi
+		que par la liaison sï¿½rie COM1:
 */
 
 #pragma hdrfile "chess.sym"
 #include	<stdlib.h>
-#include	<Stdio.h>
+#include	<stdio.h>
 #include	<dos.h>
 #include	<mem.h>
 #include	<conio.h>
@@ -22,15 +22,15 @@
 #include	<fcntl.h>
 #pragma hdrstop
 
-#include	"Chess.h"
-#include	"visu.cpp"
-#include	"eval.cpp"
-#include	"gene.cpp"
-#include	"mats.cpp"
-#include	"elag.cpp"
-#include	"analyse.cpp"
-#include	"biblio.cpp"
-#include	"coms.cpp"
+#include	"CHESS.H"
+#include	"VISU.CPP"
+#include	"EVAL.CPP"
+#include	"GENE.CPP"
+#include	"MATS.CPP"
+#include	"ELAG.CPP"
+#include	"ANALYSE.CPP"
+#include	"BIBLIO.CPP"
+#include	"COMS.CPP"
 
 
 extern unsigned _stklen = 8192U;
@@ -81,7 +81,7 @@ setvect( IRQ_TIMER, old_timer);
 
 
 void	init_echiquier(void)
-{ // Initialisation de l'‚chiquier et des piŠces
+{ // Initialisation de l'ï¿½chiquier et des piï¿½ces
 int py, px, p;
 
 
@@ -108,7 +108,7 @@ echiquier[1][5]=ROI + BLANC;
 echiquier[8][5]=ROI + NOIR;
 
 
-//	Quelques variables … renseigner ...
+//	Quelques variables ï¿½ renseigner ...
 trait=BLANC;
 phase=OUVERTURE;
 biblio_numcoup=1;
@@ -116,7 +116,7 @@ temps_bon_coup=4;
 temps_maxi=8;
 
 
-// Recopie la partie dans l'‚chiquier de travail RAPIDE...
+// Recopie la partie dans l'ï¿½chiquier de travail RAPIDE...
 for( px=1; px<9; px++ ) for( py=1; py<9; py++ ) la_partie.p_echiquier[py][px]=echiquier[py][px];
 la_partie.p_numcoup=1;
 la_partie.p_trait=trait;
@@ -133,7 +133,7 @@ valeur_piece[DAME+BLANC]=valeur_piece[DAME+NOIR]=valeur_piece[DAME]=VALEUR_DAME;
 valeur_piece[ROI+BLANC]=valeur_piece[ROI+NOIR]=valeur_piece[ROI]=VALEUR_ROI;
 
 
-// table des d‚placements des cavaliers
+// table des dï¿½placements des cavaliers
 cavalier_x[0]=cavalier_x[3]=1;
 cavalier_x[1]=cavalier_x[2]=2;
 cavalier_x[4]=cavalier_x[7]=-1;
@@ -144,7 +144,7 @@ cavalier_y[2]=cavalier_y[5]=-1;
 cavalier_y[3]=cavalier_y[4]=-2;
 
 
-// Paramˆtres d'‚valuation :
+// Paramï¿½tres d'ï¿½valuation :
 for( p=0; p<4; p++)
 	{
 	param_position[p]=100l;
@@ -179,7 +179,7 @@ long	v;
 clrscr();
 
 gotoxy( 1, 17);
-cprintf( "Benchmark d'‚chec :");
+cprintf( "Benchmark d'ï¿½chec :");
 first = time(NULL);
 
 for( compteur=0; compteur<1000000; compteur++ )
@@ -191,7 +191,7 @@ for( compteur=0; compteur<1000000; compteur++ )
 
 second = time(NULL);
 gotoxy( 1, 18);
-cprintf("R‚sultat ECHEC:%4dus%6ld/s", (int) (difftime(second,first)), (long) (1000000./difftime(second,first)) );
+cprintf("Rï¿½sultat ECHEC:%4dus%6ld/s", (int) (difftime(second,first)), (long) (1000000./difftime(second,first)) );
 
 
 first = time(NULL);
@@ -203,7 +203,7 @@ for( compteur=0; compteur<30000; compteur++ )
 
 second = time(NULL);
 gotoxy( 1, 19);
-cprintf("R‚sultat GENE.:%4dus%6ld/s", (int) (difftime(second,first)*33), (long) (30000./difftime(second,first)) );
+cprintf("Rï¿½sultat GENE.:%4dus%6ld/s", (int) (difftime(second,first)*33), (long) (30000./difftime(second,first)) );
 
 /*
 first = time(NULL);
@@ -215,7 +215,7 @@ for( compteur=0; compteur<100000; compteur++ )
 
 second = time(NULL);
 gotoxy( 1, 20);
-cprintf("R‚sultat GENE2:%4dus%6ld/s", (int) (difftime(second,first)*10), (long) (100000./difftime(second,first)) );
+cprintf("Rï¿½sultat GENE2:%4dus%6ld/s", (int) (difftime(second,first)*10), (long) (100000./difftime(second,first)) );
 */
 }
 
@@ -251,14 +251,14 @@ while( kbhit()==0 )
 gotoxy(11, 22); gets(cmd);
 strupr(cmd);
 gotoxy(1, 24); cprintf("                     ");
-gotoxy(1, 24); cprintf("Demand‚ : '%s'", cmd );
+gotoxy(1, 24); cprintf("Demandï¿½ : '%s'", cmd );
 
 strcpy( cmd3, cmd); cmd3[4]=0;
 
 if( strcmp(cmd, "*Q")==0  ) return;
 
 if( strcmp(cmd,"*BENCH")==0 )
-	{ // Benchmark des routines d'‚chec ...
+	{ // Benchmark des routines d'ï¿½chec ...
 	benchmark();
 
 	getch();
@@ -267,7 +267,7 @@ if( strcmp(cmd,"*BENCH")==0 )
 	}
 
 else if( strcmp(cmd,"--")==0 )
-	{ // Un coup en arriŠre !!!
+	{ // Un coup en arriï¿½re !!!
 	if( biblio_numcoup>1 ) biblio_numcoup--;
 
 	//	Initialiser la partie !!!
@@ -279,7 +279,7 @@ else if( strcmp(cmd,"--")==0 )
 	trait=la_partie.p_trait=la_position.p_trait;
 	}
 else if( cmd[0]=='-' || cmd[0]=='+' )
-	{ // Enlever/Ajouter une piŠce sur l'‚chiquier, modifier les roques...
+	{ // Enlever/Ajouter une piï¿½ce sur l'ï¿½chiquier, modifier les roques...
 	if( cmd[1]=='R' )
 		{ // Roques
 		if( cmd[2]=='B' ) depl=0; else depl=4;
@@ -289,7 +289,7 @@ else if( cmd[0]=='-' || cmd[0]=='+' )
 		if( cmd[0]=='-' ) la_partie.p_fl_roque -= fl_roque;
 		}
 	else
-		{ // PiŠces
+		{ // Piï¿½ces
 		px=cmd[1]-64; py=cmd[2]-48;
 		if( cmd[0]=='-' )
 			{
@@ -309,19 +309,19 @@ else if( cmd[0]=='-' || cmd[0]=='+' )
 		}
 	}
 else if( strcmp(cmd, "*EI")==0 )
-	{ // R‚initialiser la partie et r‚affiche l'‚chiquier ...
+	{ // Rï¿½initialiser la partie et rï¿½affiche l'ï¿½chiquier ...
 	init_echiquier();
 	}
 else if( strcmp(cmd, "*EV")==0 )
-	{ // Visualiser les ‚valuations
+	{ // Visualiser les ï¿½valuations
 	old_eval3(VRAI);
 	}
 else if( strcmp(cmd, "*CV")==0 )
-	{ // Visualiser les coups jou‚s
+	{ // Visualiser les coups jouï¿½s
 	affiche_liste_gene();
 	}
 else if( strcmp(cmd, "*EE")==0 )
-	{ // Effacer l'‚chiquier
+	{ // Effacer l'ï¿½chiquier
 	for(px=1; px<9; px++) for( py=1; py<9; py++) echiquier[py][px]=la_partie.p_echiquier[py][px]=0;
 
 	biblio_numcoup=1;
@@ -356,12 +356,12 @@ else if( strcmp(cmd, "*TN")==0 )
 	la_partie.p_activite=la_partie.p_attaque=0;
 	}
 else if( strcmp(cmd3,"*PS ")==0 )
-	{ // Sauvegarde la partie complŠte !!!
+	{ // Sauvegarde la partie complï¿½te !!!
 	strcpy( tmp_s, &cmd[4] );
 	save_partie( tmp_s );
 	}
 else if( strcmp(cmd3,"*PC ")==0 )
-	{ // Recharge ce qui a ‚t‚ sauvegard‚ !
+	{ // Recharge ce qui a ï¿½tï¿½ sauvegardï¿½ !
 	strcpy( tmp_s, &cmd[4] );
 	load_partie( tmp_s );
 	}
@@ -410,7 +410,7 @@ else if( strcmp(cmd3,"*QO ")==0 || strcmp(cmd3,"*QF ")==0 || strcmp(cmd3,"*QP ")
 	// gvaleur=0;
 
 	if( px>0 && px<9 && py>0 && py<9 )
-		{ // On v‚rifie !!!
+		{ // On vï¿½rifie !!!
 		if( cmd[2]=='O' )
 			{ // Optimal ...
 			valeur=analyse_prise(trait, py, px, QOPTIMAL,0,0);
@@ -432,11 +432,11 @@ else if( strcmp(cmd3,"*QO ")==0 || strcmp(cmd3,"*QF ")==0 || strcmp(cmd3,"*QP ")
 		}
 	}
 else if( strcmp(cmd,"*BV")==0 )
-	{ // Visualisons les premiŠres lignes de la bibliothŠque ...
+	{ // Visualisons les premiï¿½res lignes de la bibliothï¿½que ...
 	visu_biblio();
 	}
 else if( strcmp(cmd,"*L0")==0 || strcmp(cmd,"*L1")==0 || strcmp(cmd,"*L2")==0 || strcmp(cmd,"*L3")==0 )
-	{ // r‚flexion niveaux 0 & 1
+	{ // rï¿½flexion niveaux 0 & 1
 
 	//	Initialiser la partie !!!
 	for(py=1; py<9; py++) for(px=1; px<9; px++)
@@ -467,7 +467,7 @@ else if( strcmp(cmd,"*L0")==0 || strcmp(cmd,"*L1")==0 || strcmp(cmd,"*L2")==0 ||
 		joue_coup( coup, trait, 1);
 		trait=ADVERSE(trait);
 
-		// Retransf‚rer la partie...
+		// Retransfï¿½rer la partie...
 		for(py=1; py<9; py++) for(px=1; px<9; px++) la_partie.p_echiquier[py][px]=echiquier[py][px];
 		la_partie.p_fl_roque=table_roque[2];
 		la_partie.p_trait=trait;
@@ -498,7 +498,7 @@ else
 
 
 
-	// Test pour les fonctions bibliothŠques ...
+	// Test pour les fonctions bibliothï¿½ques ...
 	biblio_flag=0;
 	if( cmd[p]=='!' ) { biblio_flag+=100; p++; }
 	if( cmd[p]=='!' ) { biblio_flag+=100; p++; }
@@ -512,7 +512,7 @@ else
 	else if( strcmp(&cmd[p],"O-O")==0 || strcmp(&cmd[p],"0-0")==0 )
 		coup=PETIT_ROQUE;
 	else
-		{ //R‚cup‚ration positions (y1,x1) (y2,x2) et Piece2
+		{ //Rï¿½cupï¿½ration positions (y1,x1) (y2,x2) et Piece2
 		piece=0;
 		if( cmd[p]=='P' ) { piece=PION; p++; }
 		if( cmd[p]=='T' ) { piece=TOUR; p++; }
@@ -523,9 +523,9 @@ else
 		if( piece!=0 && cmd[p+1]=='X' ) p++;
 
 		if( piece!=0 && cmd[p]>64 && cmd[p+1]>64 && cmd[p+1]!='X' )
-			{ // Cas o— l'on a {PIECE}{Colonne1}[X]{Colonne2}{Ligne2}
+			{ // Cas oï¿½ l'on a {PIECE}{Colonne1}[X]{Colonne2}{Ligne2}
 
-			// >> Recherche la piŠce et sa position !!!
+			// >> Recherche la piï¿½ce et sa position !!!
 			px=cmd[p]-64;
 			for( py=1; py<9; py++ ) if( echiquier[py][px]==piece+trait )
 				{
@@ -551,9 +551,9 @@ else
 
 		if( y1>0 && y1<9 && x1>0 && x1<9 && y2>0 && y2<9 && x2>0 && x2<9 ) coup=(x1+y1*10)+(x2+y2*10)*100;
 
-		// Extension case d'arriv‚e SEULE !!!
+		// Extension case d'arrivï¿½e SEULE !!!
 		if( (cmd[2]==0 || cmd[3]==0 || cmd[4]==0) && (y1>0 && y1<9) && (x1>0 && x1<9) )
-			{ // Codage par position d'arriv‚e simple ???
+			{ // Codage par position d'arrivï¿½e simple ???
 			if( piece==0 ) piece=PION;
 			x2=x1; y2=y1;
 
@@ -564,7 +564,7 @@ else
 				if( coup2!=GRAND_ROQUE && coup2!=PETIT_ROQUE )
 					{ // Tous les coups sauf les roques
 					if( (coup2/100)==(x2+y2*10))
-						{ // V‚rifie la piŠce qui se d‚place !!!
+						{ // Vï¿½rifie la piï¿½ce qui se dï¿½place !!!
 						x1=coup2 % 10; coup2=(coup2-x1)/10;
 						y1=coup2 % 10;
 						if( piece==0 || (echiquier[y1][x1] & PIECE)==piece )
@@ -582,7 +582,7 @@ else
 		for( p=0; p<nb_coups[1]; p++)
 			{
 			if( liste_coups[1][p]==coup )
-				{ // Trouv‚ !!!
+				{ // Trouvï¿½ !!!
 
 				if( biblio_flag ) biblio_ajoute( coup, biblio_flag );
 
@@ -592,7 +592,7 @@ else
 				gotoxy(1, 24); cprintf("                          ");
 				gotoxy(1, 24); cprintf("COUP OK: %s", cmd );
 
-				// Retransf‚rer la partie...
+				// Retransfï¿½rer la partie...
 				for(py=1; py<9; py++) for(px=1; px<9; px++) la_partie.p_echiquier[py][px]=echiquier[py][px];
 				la_partie.p_fl_roque=table_roque[2];
 				la_partie.p_trait=trait;
@@ -649,7 +649,7 @@ fread( &la_partie, sizeof(une_partie), 1, fh );
 fclose(fh);
 
 
-// Recopie la partie dans l'‚chiquier de travail RAPIDE...
+// Recopie la partie dans l'ï¿½chiquier de travail RAPIDE...
 for( px=1; px<9; px++ ) for( py=1; py<9; py++ ) echiquier[py][px]=la_partie.p_echiquier[py][px];
 trait=la_partie.p_trait;
 }
@@ -662,7 +662,7 @@ FILE	*fh;
 
 fh=fopen( s, "wb" );
 if( fh==NULL )
-	{ // Erreur de Cr‚ation !!!
+	{ // Erreur de Crï¿½ation !!!
 	gotoxy(1, 24); cprintf("                     ");
 	gotoxy(1, 24); cprintf("PROBLEME: %s", s );
 
@@ -693,7 +693,7 @@ trait=la_partie.p_trait;
 
 
 if( ncoup==1 )
-	{ // Recherche d'un mat en 1 seul coup, trŠs simple :
+	{ // Recherche d'un mat en 1 seul coup, trï¿½s simple :
 	coup_echec=mat1(trait, 1);
 	gotoxy(1,24); cprintf("                       ");
 	if( coup_echec )
@@ -743,7 +743,7 @@ trait=la_partie.p_trait;
 
 
 if( ncoup==1 )
-	{ // Recherche d'un mat en 1 seul coup, trŠs simple :
+	{ // Recherche d'un mat en 1 seul coup, trï¿½s simple :
 	coup_echec=mat1(trait, 1);
 	gotoxy(1,24); cprintf("                       ");
 	if( coup_echec )
