@@ -26,6 +26,7 @@
 
 // defines to be sure
 void opening_library_read(int fh, void *buffer, int size);
+void opening_library_write(int fh, void *buffer, int size);
 
 // include old files, with main() function renamed dos_main()
 #define main dos_main

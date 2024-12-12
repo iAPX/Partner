@@ -42,3 +42,6 @@ void opening_library_read(int fh, void *buffer, int size) {
     biblio->b_level_eval = internal_buf[213] << 8 | internal_buf[212];
 }
 
+
+void opening_library_write(int fh, void *buffer, int size) {
+}

@@ -111,7 +111,6 @@ return( autre_biblio.b_val_next[0] );
 
 void	biblio_ajoute(int coup, int valeur)
 { // Ajoute le coups sp�cifi� dans la biblioth�que, depuis la position courante
-return;
 long	ptr_biblio;
 int		p, fh;
 
