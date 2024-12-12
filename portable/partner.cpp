@@ -24,13 +24,16 @@
 
 #include "portable_c.cpp"
 
+// defines to be sure
+void opening_library_read(int fh, void *buffer, int size);
+
 // include old files, with main() function renamed dos_main()
 #define main dos_main
 #include "../CHESS.CPP"
 
 // Our native entry point.
 #define main main
-int main(void) { 
+int main(void) {
     printf("Mon main a moi!\n");
     dos_main();
 
@@ -39,3 +42,5 @@ int main(void) {
     gotoxy(1, 27);
     return 0;
 }
+
+#include "portable_post_include.cpp"

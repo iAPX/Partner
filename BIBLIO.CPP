@@ -1,18 +1,18 @@
 /*
 			Module de gestion de la bibliotheque des positions,
-			d'abord fa‡on brouette !!!
+			d'abord faï¿½on brouette !!!
 */
 
 
 
 long	biblio_find(void)
-{ // Recherche la position courante dans la bibliothŠque !!!
+{ // Recherche la position courante dans la bibliothï¿½que !!!
 int		p, y, x, fh;
 int		nbc, fl_roque, fl_trouve;
 long	ptr_biblio=0, len_biblio;
 
 
-// G‚nerer un drapeau ROQUE correct !!!
+// Gï¿½nerer un drapeau ROQUE correct !!!
 nbc=generateur(1, trait);
 fl_roque=0;
 for(p=0; p<nbc; p++)
@@ -22,7 +22,7 @@ for(p=0; p<nbc; p++)
 	}
 
 
-// Cr‚ation de la structure BIBLIOTHEQUE !!!
+// Crï¿½ation de la structure BIBLIOTHEQUE !!!
 la_biblio.b_trait=trait;
 la_biblio.b_numcoup=biblio_numcoup;
 la_biblio.b_fl_roque=fl_roque;
@@ -37,7 +37,7 @@ if( fh<=0 ) return(0l);
 
 len_biblio=filelength(fh);
 for( ptr_biblio=0; ptr_biblio<len_biblio; ptr_biblio+=sizeof(une_biblio) )
-	{ // Lecture de la prochaine position en bibliothŠque
+	{ // Lecture de la prochaine position en bibliothï¿½que
 	// gotoxy(40,2); cprintf("%ld      ", ptr_biblio );
 
 	read( fh, &autre_biblio, sizeof(une_biblio) );
@@ -70,7 +70,7 @@ return(-1l);
 
 
 int		biblio_coup(void)
-{ // Cherche un coup ADEQUAT dans la bibliothŠque et le JOUE !!!
+{ // Cherche un coup ADEQUAT dans la bibliothï¿½que et le JOUE !!!
 long	ptr_biblio;
 long	valeur_totale=0l;
 int		valeur_limite, p;
@@ -80,7 +80,7 @@ ptr_biblio=biblio_find();
 if( ptr_biblio<0 ) return(0);
 
 
-// Une position … ‚t‚ trouv‚e, dans AUTRE_BIBLIO ... !!!
+// Une position ï¿½ ï¿½tï¿½ trouvï¿½e, dans AUTRE_BIBLIO ... !!!
 if( autre_biblio.b_nb_next==0 ) return(0);
 if( autre_biblio.b_level_eval<0 ) return(0);
 
@@ -110,17 +110,18 @@ return( autre_biblio.b_val_next[0] );
 
 
 void	biblio_ajoute(int coup, int valeur)
-{ // Ajoute le coups sp‚cifi‚ dans la bibliothŠque, depuis la position courante
+{ // Ajoute le coups spï¿½cifiï¿½ dans la bibliothï¿½que, depuis la position courante
+return;
 long	ptr_biblio;
 int		p, fh;
 
 if( valeur<=0 ) return;
 
-// Recherche et chargement de la position de la biblio ... (ou cr‚ation)
+// Recherche et chargement de la position de la biblio ... (ou crï¿½ation)
 ptr_biblio=biblio_find();
 
 
-// Ajout du coup … la fin ... s'il n'existe pas DEJA !!!
+// Ajout du coup ï¿½ la fin ... s'il n'existe pas DEJA !!!
 for(p=0; p<autre_biblio.b_nb_next; p++) if( autre_biblio.b_next_coups[p]==coup ) return;
 
 p=autre_biblio.b_nb_next++;
@@ -128,16 +129,16 @@ autre_biblio.b_next_coups[p]=coup;
 autre_biblio.b_val_next[p]=valeur;
 autre_biblio.b_level_eval=9999;		// BIBLIOTHEQUE EN DUR !!!
 
-// Ouverture du fichier et mise … jour ...
+// Ouverture du fichier et mise ï¿½ jour ...
 fh=open( "BIBLIO.DAT", O_RDWR | O_BINARY );
 if( fh<=0 ) return;
 
 if( ptr_biblio<0 )
-	{ // Ajout … la fin, donc ...
+	{ // Ajout ï¿½ la fin, donc ...
 	lseek( fh, filelength(fh), SEEK_SET );
 	}
 else
-	{ // Remise au mˆme endroit !!!
+	{ // Remise au mï¿½me endroit !!!
 	lseek( fh, ptr_biblio, SEEK_SET );
 	}
 
@@ -148,7 +149,7 @@ close(fh);
 
 
 void	visu_biblio(void)
-{ // Affichage des premiŠres lignes de la bibliothŠque ...
+{ // Affichage des premiï¿½res lignes de la bibliothï¿½que ...
 int		fh, p;
 long	ptr_biblio=0, len_biblio;
 

@@ -22,11 +22,11 @@ char getch(void) { return getchar(); }
 void clrscr(void) {
     printf("\033[H\033[J");
 
-    // 25x80 Terminal in black background
+    // 25x80 Terminal in black background + 5 lines bonus
     textbackground(0);
     textcolor(7);
     gotoxy(1, 1);
-    for (int i = 0; i < 25; i++) {
+    for (int i = 0; i < 30; i++) {
         for (int j = 0; j < 80; j++) {
             printf(" ");
         }

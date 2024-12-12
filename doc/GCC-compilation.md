@@ -28,7 +28,7 @@ As a vi user myself, you could use CTL-C to quit, but the expected command is `*
 @TODO will work on these points while keeping Borland C++ 3.x and DOS compatibility.
 
 Example:
-`gcc -I./gcc-includes -Wno-invalid-source-encoding -Wno-macro-redefined -Wno-c++11-compat-deprecated-writable-strings -Wno-extern-initializer -o partner partner.cpp`
+`gcc -I./gcc-includes -Wno-invalid-source-encoding -Wno-macro-redefined -Wno-c++11-compat-deprecated-writable-strings -Wno-extern-initializer -fpack-struct=2 -o partner partner.cpp`
 
 
 ## The tricks
@@ -38,3 +38,5 @@ Or added useless proprietary constants such as `#define O_BINARY    0`<br/>
 And reimplemented many others, for example the BC++ proprietaary display functions in [portable_display.cpp](../portable/portable_display.cpp).
 
 The main entry has the wrong signature, so I changed it using `#define main dos_main` and rechanged it before my main() entry point with a second `#define main main`.
+
+And the worst trick is that the game library is unreadable and unusable without 16 bits int and WORD (2 bytes) boundaries alignment, but that don't stop Partner from working! Lol!

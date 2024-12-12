@@ -1,5 +1,5 @@
 
-// D‚finitions standards … employer ...
+// Dï¿½finitions standards ï¿½ employer ...
 #define	VRAI		1
 #define	FAUX		0
 
@@ -47,7 +47,7 @@
 #define	ADVERSE(c)	(((c)==BLANC) ? NOIR:BLANC)
 
 
-//	Module d'include initialisant les variables du programme d'‚chec
+//	Module d'include initialisant les variables du programme d'ï¿½chec
 int		biblio_flag;
 int		echiquier[16][16], old_echiquier[16][16];
 int		profondeur_mini, profondeur_maxi;
@@ -71,7 +71,7 @@ long	param_position[4], param_pions[4], param_liberte[4],
 		param_materiel[4], param_strategie[4], param_attaque_roi[4];
 
 
-//	Description des fonctions employ‚es en g‚n‚ral
+//	Description des fonctions employï¿½es en gï¿½nï¿½ral
 void	main(void);
 void	benchmark(void);
 
@@ -124,7 +124,7 @@ void	dejoue_coup(int coup, int trait, int niveau);
 
 
 
-//	Structure d'une partie, pour la sauvegarde et la r‚cup‚ration...
+//	Structure d'une partie, pour la sauvegarde et la rï¿½cupï¿½ration...
 struct un_coup
 {
 	int		c_numcoup;
@@ -137,7 +137,7 @@ struct un_coup
 
 
 struct une_partie
-{ // Partie complŠte, en l'‚tat ...
+{ // Partie complï¿½te, en l'ï¿½tat ...
 	short	p_echiquier[10][10];
 	int		p_trait, p_numcoup;
 	struct	un_coup	p_last_coup;
@@ -150,7 +150,7 @@ struct une_partie
 
 
 struct une_position
-{ // Position interm‚diaire, dans une partie
+{ // Position intermï¿½diaire, dans une partie
 	char	p_echiquier[10][10];
 	int		p_trait, p_numcoup;
 	struct	un_coup p_last_coup;
@@ -180,7 +180,7 @@ struct	une_position	far * les_positions;
 
 
 
-// Donn‚es et fonctions pour la bibliothŠque !!!
+// Donnï¿½es et fonctions pour la bibliothï¿½que !!!
 int		biblio_numcoup;
 int		biblio_nb_coups, biblio_coups[32];
 
@@ -190,7 +190,7 @@ int		biblio_coup(void);
 void	visu_biblio(void);
 
 
-// Donn‚es pour l'ancien EVAL (OLD_EVAL):
+// Donnï¿½es pour l'ancien EVAL (OLD_EVAL):
 int	table_position[16][16];
 int	table_pions[3][16][16];
 
@@ -202,7 +202,7 @@ void	affiche_liste_gene(void);
 
 
 
-// Donn‚es pour la gestion de compteur de temps
+// Donnï¿½es pour la gestion de compteur de temps
 #define	IRQ_TIMER	8
 
 void interrupt (* old_timer)(...);
@@ -214,7 +214,7 @@ long	timer_decompteur=0l;
 
 
 
-//	Tables d'attaque, par piŠce ...
+//	Tables d'attaque, par piï¿½ce ...
 int	attaque_pion[4][4]=
 	{ { 2, 0, 0, 0 },
 	  { 0, 1, 0, 0 },
@@ -246,7 +246,7 @@ int	attaque_dame[4][4]=
 	  { 4, 1, 0, 0 } };
 
 
-// Pour le dialogue avec le port s‚rie !!!
+// Pour le dialogue avec le port sï¿½rie !!!
 #define	COM1			0x3F8
 #define	COM2			0x2F8
 #define	DECOMPTE_INIT	64

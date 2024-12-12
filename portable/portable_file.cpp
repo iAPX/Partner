@@ -2,16 +2,26 @@
  * Implements file management DOS functions for portability.
  */
 
-// #define open portable_open
+
 #include <unistd.h>
 #include <sys/stat.h>
+#include <fcntl.h>
 
 
+// fFor compatibility
 #define O_BINARY    0
 
 
 int filelength(int fh) {
-    struct stat file_stat;
-    fstat(fh, &file_stat);
-    return file_stat.st_size;
+    int filesize = (int) lseek(fh, 0, SEEK_END);
+    lseek(fh, 0, SEEK_SET);
+    return filesize;
 }
+
+int opening_library_open(const char *filename, int mode) {
+    return open("../BIBLIO.DAT", O_RDONLY);
+}
+
+
+#define read opening_library_read
+#define open opening_library_open

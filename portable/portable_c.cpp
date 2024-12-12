@@ -9,5 +9,6 @@
 
 #define interrupt
 
+
 // Borland C++ 3.x DOS functions
 #define cprintf printf
