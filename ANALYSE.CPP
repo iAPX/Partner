@@ -18,7 +18,7 @@ long	eval_initiale, eval_tmp;
 
 		Faire une recherche QuickMat sur 2 secondes au maximum (SI FINALE).
 
-		Descendre l'arbre, de maniŠre exhaustive, sur 2 demi-coups.
+		Descendre l'arbre, de maniï¿½re exhaustive, sur 2 demi-coups.
 		Utiliser MiniMaxi, et OLD_EVAL3 (?!) pour noter les coups.
 */
 
@@ -41,7 +41,7 @@ if( phase==FINALE )
 // else if( phase==OUVERTURE )
 else
 	{
-	// a-Recherche au sein de la bibliothŠque des coups ...
+	// a-Recherche au sein de la bibliothï¿½que des coups ...
 	gotoxy(1, 24); cprintf("                          ");
 	gotoxy(1, 24); cprintf("*L0 : CONSULTATION BIBLIO ");
 
@@ -92,7 +92,7 @@ for(p1=0; p1<nbc1; p1++)
 tri_coups(1);
 
 
-// c2-On affiche la liste des coups, tri‚s !!!
+// c2-On affiche la liste des coups, triï¿½s !!!
 for(py=1; py<9; py++) for(px=1; px<9; px++)
 	if( echiquier[py][px]==ROI+ADVERSE(trait) ) {roi_py=py; roi_px=px; py=8; px=8; }
 
@@ -106,7 +106,7 @@ for( p=0; p<nbc1 && p<50; p++)
 	cprintf("%2d:", p+1);
 	affiche_gene( py, px+4, liste_coups[1][p] );
 
-	// V‚rifie Echec, Mat, Pat et Nb_R‚ponses...
+	// Vï¿½rifie Echec, Mat, Pat et Nb_Rï¿½ponses...
 	joue_coup( liste_coups[1][p], trait, 1);
 	nbc2=generateur(2, ADVERSE(trait) );
 	if( echec( ADVERSE(trait), roi_py, roi_px) )
@@ -119,7 +119,7 @@ for( p=0; p<nbc1 && p<50; p++)
 	}
 
 
-// retournons la r‚ponse la plus ad‚quate !!!
+// retournons la rï¿½ponse la plus adï¿½quate !!!
 return( liste_coups[1][0] );
 }
 
@@ -140,14 +140,14 @@ time_t	first, second;		// Gestion du temps (5 secondes et 3 coups)
 	RECETTE :
 		Faire une recherche QuickMat sur 2 secondes au maximum (SI FINALE).
 
-		Descendre l'arbre, de maniŠre exhaustive, sur 2 demi-coups.
+		Descendre l'arbre, de maniï¿½re exhaustive, sur 2 demi-coups.
 		Utiliser MiniMaxi, et OLD_EVAL (?!) pour noter les coups.
 
 		Trier les coups suivant cette notation.
 
-		Descendre l'arbre sur 4 demi-coups, en employant MiniMax & AlphaB‚ta,
-		et s'arrˆter au bout de 5 secondes et 3 coups ‚valu‚s, ou si un
-		coup donne un gain (par rapport … l'‚valuation initiale) de 3 Pions
+		Descendre l'arbre sur 4 demi-coups, en employant MiniMax & AlphaBï¿½ta,
+		et s'arrï¿½ter au bout de 5 secondes et 3 coups ï¿½valuï¿½s, ou si un
+		coup donne un gain (par rapport ï¿½ l'ï¿½valuation initiale) de 3 Pions
 		au moins.
 */
 
@@ -176,7 +176,7 @@ if( phase==FINALE )
 // else if( phase==OUVERTURE )
 else
 	{
-	// a-Recherche au sein de la bibliothŠque des coups ...
+	// a-Recherche au sein de la bibliothï¿½que des coups ...
 	gotoxy(1, 24); cprintf("                          ");
 	gotoxy(1, 24); cprintf("*L1 : CONSULTATION BIBLIO ");
 
@@ -226,7 +226,7 @@ for(p1=0; p1<nbc1; p1++)
 tri_coups(1);
 
 
-// c2-On affiche la liste des coups, tri‚s !!!
+// c2-On affiche la liste des coups, triï¿½s !!!
 for(py=1; py<9; py++) for(px=1; px<9; px++)
 	if( echiquier[py][px]==ROI+ADVERSE(trait) ) {roi_py=py; roi_px=px; py=8; px=8; }
 
@@ -240,7 +240,7 @@ for( p=0; p<nbc1 && p<50; p++)
 	cprintf("%2d:", p+1);
 	affiche_gene( py, px+4, liste_coups[1][p] );
 
-	// V‚rifie Echec, Mat, Pat et Nb_R‚ponses...
+	// Vï¿½rifie Echec, Mat, Pat et Nb_Rï¿½ponses...
 	joue_coup( liste_coups[1][p], trait, 1);
 	nbc2=generateur(2, ADVERSE(trait) );
 	if( echec( ADVERSE(trait), roi_py, roi_px) )
@@ -283,13 +283,13 @@ for(p1=0; p1<nbc1; p1++)
 
 	mini2=999999l;
 	for(p2=0; p2<nbc2; p2++)
-		{ // Recherche la meilleur r‚ponse
+		{ // Recherche la meilleur rï¿½ponse
 		coup2=liste_coups[2][p2];
 		joue_coup(coup2, ADVERSE(trait), 2);
 
 		nbc3=generateur(3, trait);
 
-		// Tri des coups troisiŠme niveau !!!
+		// Tri des coups troisiï¿½me niveau !!!
 		for(p3=0; p3<nbc3; p3++)
 			{ coup3=liste_coups[3][p3];
 			joue_coup( coup3, trait, 3);
@@ -300,14 +300,14 @@ for(p1=0; p1<nbc1; p1++)
 
 		maxi3=-999999l;
 		for(p3=0; p3<nbc3; p3++)
-			{ // Rechercher la meilleur r‚ponse (TRAIT)
+			{ // Rechercher la meilleur rï¿½ponse (TRAIT)
 			coup3=liste_coups[3][p3];
 			joue_coup(coup3, trait, 3);
 
 			nbc4=generateur(4, ADVERSE(trait) );
 			mini4=999999l;
 			for( p4=0; p4<nbc4; p4++ )
-				{ // Rechercher la meilleur r‚ponse (ADVERSE)
+				{ // Rechercher la meilleur rï¿½ponse (ADVERSE)
 				coup4=liste_coups[4][p4];
 				joue_coup(coup4, ADVERSE(trait), 4);
 				val4=old_eval2(0);
@@ -315,7 +315,7 @@ for(p1=0; p1<nbc1; p1++)
 
 				if( val4<mini4 )
 					{ mini4=val4;
-					if( mini4<maxi3 ) break; // Alpha-B‚ta
+					if( mini4<maxi3 ) break; // Alpha-Bï¿½ta
 					}
 				}
 			val3=mini4;
@@ -324,7 +324,7 @@ for(p1=0; p1<nbc1; p1++)
 
 			if( val3>maxi3 )
 				{ maxi3=val3;
-				if( maxi3>mini2 ) break; // Alpha-B‚ta
+				if( maxi3>mini2 ) break; // Alpha-Bï¿½ta
 				}
 			}
 		val2=maxi3;
@@ -333,7 +333,7 @@ for(p1=0; p1<nbc1; p1++)
 
 		if( val2<mini2 )
 			{ mini2=val2;
-			if( mini2<maxi1 ) break; // Alpha-B‚ta !!!
+			if( mini2<maxi1 ) break; // Alpha-Bï¿½ta !!!
 			}
 		}
 	val1=mini2;
@@ -345,7 +345,7 @@ for(p1=0; p1<nbc1; p1++)
 
 	gotoxy( px, py); cprintf("%2d:", p1+1);
 	if(nb_eval>=3)
-		{ // Plus de 5 secondes ‚coul‚es ???
+		{ // Plus de 5 secondes ï¿½coulï¿½es ???
 		second=time(NULL); if( difftime(second, first)>=7 )
 			{ gotoxy(1, 25); cprintf("ARRET SUR TIMEOUT 7s  "); break; }
 
@@ -362,7 +362,7 @@ nb_coups[1]=nb_eval; nbc1=nb_eval;
 tri_coups(1);
 
 
-// f2-On affiche la liste des coups, tri‚s !!!
+// f2-On affiche la liste des coups, triï¿½s !!!
 for(py=1; py<9; py++) for(px=1; px<9; px++)
 	if( echiquier[py][px]==ROI+ADVERSE(trait) ) {roi_py=py; roi_px=px; py=8; px=8; }
 
@@ -376,7 +376,7 @@ for( p=0; p<nbc1 && p<50; p++)
 	cprintf("%2d:", p+1);
 	affiche_gene( py, px+4, liste_coups[1][p] );
 
-	// V‚rifie Echec, Mat, Pat et Nb_R‚ponses...
+	// Vï¿½rifie Echec, Mat, Pat et Nb_Rï¿½ponses...
 	joue_coup( liste_coups[1][p], trait, 1);
 	nbc2=generateur(2, ADVERSE(trait) );
 	if( echec( ADVERSE(trait), roi_py, roi_px) )
@@ -390,7 +390,7 @@ for( p=0; p<nbc1 && p<50; p++)
 
 // y-Indiquons le temps
 gotoxy(1,25); cprintf("                     ");
-gotoxy(1,25); cprintf("Temps employ‚:%3ds", (int) (difftime(time(NULL), first)) );
+gotoxy(1,25); cprintf("Temps employï¿½:%3ds", (int) (difftime(time(NULL), first)) );
 
 return( liste_coups[1][0] );
 }
@@ -416,20 +416,20 @@ time_t	first, second;		// Gestion du temps (8 secondes et 3 coups)
 
 		Faire une recherche QuickMat sur 2 secondes au maximum (SI FINALE).
 
-		Descendre l'arbre, de maniŠre exhaustive, sur 2 demi-coups.
+		Descendre l'arbre, de maniï¿½re exhaustive, sur 2 demi-coups.
 		Utiliser MiniMaxi, et OLD_EVAL3 (?!) pour noter les coups.
 
 		Trier les coups suivant cette notation.
 
 		Descendre l'arbre, sur 3 demi-coups, pour les 8 meilleurs coups.
-		Utiliser MiniMaxi & Alpha-B‚ta. Old_Eval3 Notera les coups.
+		Utiliser MiniMaxi & Alpha-Bï¿½ta. Old_Eval3 Notera les coups.
 
 		Trier suivant cette notation.
 
-		Descendre l'arbre sur 4 demi-coups, en employant MiniMax & AlphaB‚ta,
-		et s'arrˆter au bout de 5 secondes et 3 coups ‚valu‚s, ou si un
-		coup donne un gain (par rapport … l'‚valuation initiale) de 3 Pions
-		au moins. Se limiter … 6 coups ‚valu‚s.
+		Descendre l'arbre sur 4 demi-coups, en employant MiniMax & AlphaBï¿½ta,
+		et s'arrï¿½ter au bout de 5 secondes et 3 coups ï¿½valuï¿½s, ou si un
+		coup donne un gain (par rapport ï¿½ l'ï¿½valuation initiale) de 3 Pions
+		au moins. Se limiter ï¿½ 6 coups ï¿½valuï¿½s.
 */
 
 
@@ -459,7 +459,7 @@ if( phase==FINALE )
 // else if( phase==OUVERTURE )
 else
 	{
-	// a-Recherche au sein de la bibliothŠque des coups ...
+	// a-Recherche au sein de la bibliothï¿½que des coups ...
 	gotoxy(1, 24); cprintf("                          ");
 	gotoxy(1, 24); cprintf("*L2+ : CONSULTATION BIBLIO ");
 
@@ -513,7 +513,7 @@ tri_coups(1);
 	{ if( nbc1>6 ) nbc1=6; }
 
 
-// c2-On affiche la liste des coups, tri‚s !!!
+// c2-On affiche la liste des coups, triï¿½s !!!
 for(py=1; py<9; py++) for(px=1; px<9; px++)
 	if( echiquier[py][px]==ROI+ADVERSE(trait) ) {roi_py=py; roi_px=px; py=8; px=8; }
 
@@ -527,7 +527,7 @@ for( p=0; p<nbc1 && p<50; p++)
 	cprintf("%2d:", p+1);
 	affiche_gene( py, px+4, liste_coups[1][p] );
 
-	// V‚rifie Echec, Mat, Pat et Nb_R‚ponses...
+	// Vï¿½rifie Echec, Mat, Pat et Nb_Rï¿½ponses...
 	joue_coup( liste_coups[1][p], trait, 1);
 	nbc2=generateur(2, ADVERSE(trait) );
 	if( echec( ADVERSE(trait), roi_py, roi_px) )
@@ -575,13 +575,13 @@ for(p1=0; p1<nbc1 && p1<10; p1++)
 
 	mini2=999999l;
 	for(p2=0; p2<nbc2; p2++)
-		{ // Recherche la meilleur r‚ponse
+		{ // Recherche la meilleur rï¿½ponse
 		coup2=liste_coups[2][p2];
 		joue_coup(coup2, ADVERSE(trait), 2);
 
 		nbc3=generateur(3, trait);
 
-		// Tri des coups troisiŠme niveau !!!
+		// Tri des coups troisiï¿½me niveau !!!
 		for(p3=0; p3<nbc3; p3++)
 			{ coup3=liste_coups[3][p3];
 			joue_coup( coup3, trait, 3);
@@ -598,14 +598,14 @@ for(p1=0; p1<nbc1 && p1<10; p1++)
 
 		maxi3=-999999l;
 		for(p3=0; p3<nbc3; p3++)
-			{ // Rechercher la meilleur r‚ponse (TRAIT)
+			{ // Rechercher la meilleur rï¿½ponse (TRAIT)
 			coup3=liste_coups[3][p3];
 			joue_coup(coup3, trait, 3);
 
 			nbc4=generateur(4, ADVERSE(trait) );
 			mini4=999999l;
 			for( p4=0; p4<nbc4; p4++ )
-				{ // Rechercher la meilleur r‚ponse (ADVERSE)
+				{ // Rechercher la meilleur rï¿½ponse (ADVERSE)
 				coup4=liste_coups[4][p4];
 				joue_coup(coup4, ADVERSE(trait), 4);
 
@@ -616,7 +616,7 @@ for(p1=0; p1<nbc1 && p1<10; p1++)
 
 				if( val4<mini4 )
 					{ mini4=val4;
-					if( mini4<maxi3 ) break; // Alpha-B‚ta
+					if( mini4<maxi3 ) break; // Alpha-Bï¿½ta
 					}
 				}
 			val3=mini4;
@@ -625,7 +625,7 @@ for(p1=0; p1<nbc1 && p1<10; p1++)
 
 			if( val3>maxi3 )
 				{ maxi3=val3;
-				if( maxi3>mini2 ) break; // Alpha-B‚ta
+				if( maxi3>mini2 ) break; // Alpha-Bï¿½ta
 				}
 			}
 		val2=maxi3;
@@ -634,7 +634,7 @@ for(p1=0; p1<nbc1 && p1<10; p1++)
 
 		if( val2<mini2 )
 			{ mini2=val2;
-			if( mini2<maxi1 ) break; // Alpha-B‚ta !!!
+			if( mini2<maxi1 ) break; // Alpha-Bï¿½ta !!!
 			}
 		}
 	val1=mini2;
@@ -646,7 +646,7 @@ for(p1=0; p1<nbc1 && p1<10; p1++)
 
 	gotoxy( px, py); cprintf("%2d:", p1+1);
 	if(nb_eval>=3)
-		{ // Plus de 8 secondes ‚coul‚es ???
+		{ // Plus de 8 secondes ï¿½coulï¿½es ???
 		second=time(NULL);
 		if( difftime(second, first)>=8 )
 			{ gotoxy(1, 25); cprintf("ARRET SUR TIMEOUT 8s  "); break; }
@@ -660,7 +660,7 @@ nb_coups[1]=nb_eval; nbc1=nb_eval;
 tri_coups(1);
 
 
-// f2-On affiche la liste des coups, tri‚s !!!
+// f2-On affiche la liste des coups, triï¿½s !!!
 for(py=1; py<9; py++) for(px=1; px<9; px++)
 	if( echiquier[py][px]==ROI+ADVERSE(trait) ) {roi_py=py; roi_px=px; py=8; px=8; }
 
@@ -674,7 +674,7 @@ for( p=0; p<nbc1 && p<50; p++)
 	cprintf("%2d:", p+1);
 	affiche_gene( py, px+4, liste_coups[1][p] );
 
-	// V‚rifie Echec, Mat, Pat et Nb_R‚ponses...
+	// Vï¿½rifie Echec, Mat, Pat et Nb_Rï¿½ponses...
 	joue_coup( liste_coups[1][p], trait, 1);
 	nbc2=generateur(2, ADVERSE(trait) );
 	if( echec( ADVERSE(trait), roi_py, roi_px) )
@@ -689,7 +689,7 @@ for( p=0; p<nbc1 && p<50; p++)
 
 // g-On se demande si on doit se taper du 6 1/2 coups ???
 if(elagage) if( difftime(time(NULL), first)<4 )
-	{ // On se fait les 6 1/2 coups, trŠs hard !!!
+	{ // On se fait les 6 1/2 coups, trï¿½s hard !!!
 	if( nbc1>3 ) nbc1=3;
 
 	// h-Attaquons le probleme sur 6 demi-coups ...
@@ -725,13 +725,13 @@ if(elagage) if( difftime(time(NULL), first)<4 )
 
 		mini2=999999l;
 		for(p2=0; p2<nbc2; p2++)
-			{ // Recherche la meilleur r‚ponse
+			{ // Recherche la meilleur rï¿½ponse
 			coup2=liste_coups[2][p2];
 			joue_coup(coup2, ADVERSE(trait), 2);
 
 			nbc3=generateur(3, trait);
 
-			// Tri des coups troisiŠme niveau !!!
+			// Tri des coups troisiï¿½me niveau !!!
 			for(p3=0; p3<nbc3; p3++)
 				{ coup3=liste_coups[3][p3];
 				joue_coup( coup3, trait, 3);
@@ -747,14 +747,14 @@ if(elagage) if( difftime(time(NULL), first)<4 )
 
 			maxi3=-999999l;
 			for(p3=0; p3<nbc3; p3++)
-				{ // Rechercher la meilleur r‚ponse (TRAIT)
+				{ // Rechercher la meilleur rï¿½ponse (TRAIT)
 				coup3=liste_coups[3][p3];
 				joue_coup(coup3, trait, 3);
 
 				nbc4=generateur(4, ADVERSE(trait) );
 				mini4=999999l;
 				for( p4=0; p4<nbc4; p4++ )
-					{ // Rechercher la meilleur r‚ponse (ADVERSE)
+					{ // Rechercher la meilleur rï¿½ponse (ADVERSE)
 					coup4=liste_coups[4][p4];
 					joue_coup(coup4, ADVERSE(trait), 4);
 
@@ -767,11 +767,11 @@ if(elagage) if( difftime(time(NULL), first)<4 )
 				if( nbc4>4 ) nbc4=4;
 
 				for( p4=0; p4<nbc4; p4++ )
-					{ // Rechercher la meilleur r‚ponse (ADVERSE)
+					{ // Rechercher la meilleur rï¿½ponse (ADVERSE)
 					coup4=liste_coups[4][p4];
 					joue_coup(coup4, ADVERSE(trait), 4);
 
-					// Analyse au 5iŠme niveau, LIMITE ACTUELLE !!!
+					// Analyse au 5iï¿½me niveau, LIMITE ACTUELLE !!!
 					nbc5=generateur(5, trait);
 					maxi5=999999l;
 					for( p5=0; p5<nbc5; p5++)
@@ -813,7 +813,7 @@ if(elagage) if( difftime(time(NULL), first)<4 )
 
 						if( val5>maxi5 )
 							{ maxi5=val5;
-							if( maxi5>mini4 ) break; // Alpha-B‚ta !!!
+							if( maxi5>mini4 ) break; // Alpha-Bï¿½ta !!!
 							}
 						}
 
@@ -821,7 +821,7 @@ if(elagage) if( difftime(time(NULL), first)<4 )
 
 					if( val4<mini4 )
 						{ mini4=val4;
-						if( mini4<maxi3 ) break; // Alpha-B‚ta
+						if( mini4<maxi3 ) break; // Alpha-Bï¿½ta
 						}
 					}
 				val3=mini4;
@@ -830,7 +830,7 @@ if(elagage) if( difftime(time(NULL), first)<4 )
 
 				if( val3>maxi3 )
 					{ maxi3=val3;
-					if( maxi3>mini2 ) break; // Alpha-B‚ta
+					if( maxi3>mini2 ) break; // Alpha-Bï¿½ta
 					}
 				}
 			val2=maxi3;
@@ -839,7 +839,7 @@ if(elagage) if( difftime(time(NULL), first)<4 )
 
 			if( val2<mini2 )
 				{ mini2=val2;
-				if( mini2<maxi1 ) break; // Alpha-B‚ta !!!
+				if( mini2<maxi1 ) break; // Alpha-Bï¿½ta !!!
 				}
 			}
 		val1=mini2;
@@ -855,7 +855,7 @@ if(elagage) if( difftime(time(NULL), first)<4 )
 	tri_coups(1);
 
 
-	// j-On affiche la liste des coups, tri‚s !!!
+	// j-On affiche la liste des coups, triï¿½s !!!
 	for(py=1; py<9; py++) for(px=1; px<9; px++)
 		if( echiquier[py][px]==ROI+ADVERSE(trait) ) {roi_py=py; roi_px=px; py=8; px=8; }
 
@@ -869,7 +869,7 @@ if(elagage) if( difftime(time(NULL), first)<4 )
 		cprintf("%2d:", p+1);
 		affiche_gene( py, px+4, liste_coups[1][p] );
 
-		// V‚rifie Echec, Mat, Pat et Nb_R‚ponses...
+		// Vï¿½rifie Echec, Mat, Pat et Nb_Rï¿½ponses...
 		joue_coup( liste_coups[1][p], trait, 1);
 		nbc2=generateur(2, ADVERSE(trait) );
 		if( echec( ADVERSE(trait), roi_py, roi_px) )
@@ -884,7 +884,7 @@ if(elagage) if( difftime(time(NULL), first)<4 )
 
 // y-Indiquons le temps
 gotoxy(1,25); cprintf("                     ");
-gotoxy(1,25); cprintf("Temps employ‚:%3ds", (int) (difftime(time(NULL), first)) );
+gotoxy(1,25); cprintf("Temps employï¿½:%3ds", (int) (difftime(time(NULL), first)) );
 
 // z-Retournons le coup choisi, maintenant !!!
 return( liste_coups[1][0] );

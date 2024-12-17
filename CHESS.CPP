@@ -630,7 +630,6 @@ else
 
 void	load_partie(char *s)
 { // Recharge la partie depuis le disque dur
-return;
 int		py, px;
 FILE	*fh;
 

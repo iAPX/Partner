@@ -27,6 +27,9 @@
 // defines to be sure
 void opening_library_read(int fh, void *buffer, int size);
 void opening_library_write(int fh, void *buffer, int size);
+void game_fread(void *buffer, int size, int size2, FILE *f);
+void game_fwrite(void *buffer, int size, int size2, FILE *f);
+void lichess(char * moves);
 
 // include old files, with main() function renamed dos_main()
 #define main dos_main
@@ -34,7 +37,18 @@ void opening_library_write(int fh, void *buffer, int size);
 
 // Our native entry point.
 #define main main
-int main(void) {
+int main(int argc, char *argv[]) {
+
+    if (argc == 3) {
+        if (strcmp(argv[1], "lichess") != 0) {
+            printf("Usage: %s lichess \"coups séparés par des espaces \"\n", argv[0]);
+            return 1;
+        }
+
+        lichess(argv[2]);
+        return 0;
+    }
+
     printf("Mon main a moi!\n");
     dos_main();
 
@@ -45,3 +59,5 @@ int main(void) {
 }
 
 #include "portable_post_include.cpp"
+
+#include "lichess.cpp"

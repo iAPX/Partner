@@ -27,3 +27,5 @@ int filelength(int fh) {
 #define open opening_library_open
 #define read opening_library_read
 #define write opening_library_write
+#define fread game_fread
+#define fwrite game_fwrite
