@@ -25,10 +25,8 @@ As a vi user myself, you could use CTL-C to quit, but the expected command is `*
 - -Wno-c++11-compat-deprecated-writable-strings : won't rewrite the code!
 - -Wno-extern-initializer : old code, old rules!
 
-@TODO will work on these points while keeping Borland C++ 3.x and DOS compatibility.
-
 Example:
-`gcc -I./gcc-includes -Wno-invalid-source-encoding -Wno-macro-redefined -Wno-c++11-compat-deprecated-writable-strings -Wno-extern-initializer -fpack-struct=2 -o partner partner.cpp`
+`gcc -I./gcc-includes -Wno-invalid-source-encoding -Wno-macro-redefined -Wno-c++11-compat-deprecated-writable-strings -Wno-extern-initializer -o partner partner.cpp`
 
 
 ## The tricks

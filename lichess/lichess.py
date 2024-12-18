@@ -52,7 +52,11 @@ class Game(threading.Thread):
                 coup = output.split("////", 1)[-1].strip().lower()
                 print("Premier coup de Partner: " + coup + "\n")
                 # coup = input().strip()
-                client.bots.make_move(game_id, coup)
+                try:
+                    client.bots.make_move(game_id, coup)
+                except Exception as e:
+                    print("Premier coup Exception : " + str(e))
+
 
     def run(self):
         client.bots.post_message(self.game_id, "Hello this is a test Chess Bot!")
@@ -73,6 +77,18 @@ class Game(threading.Thread):
         moves = event['moves'].split()
         print(moves)
 
+        # Logs if game != started
+        if event['status'] != 'started':
+            print("Fin de partie?!? status = " + event['status'])
+            try:
+                side = "white" if self.is_white else "black"
+                with open("games.log", "a") as file:
+                    file.write(side + ":" + str(event) + "\n")
+            except Exception as e:
+                print("Exception pendant log fin de partie: " + str(e) + "\n")
+            finally:
+                return
+
         if (len(moves) % 2 == 1) == self.is_white:
             # Not my turn!
             print("Not my turn!")
@@ -92,7 +108,10 @@ class Game(threading.Thread):
             # client.bots.resign_game(game_id)
         else:
             ## coup = input().strip()
-            client.bots.make_move(game_id, coup)
+            try:
+                client.bots.make_move(game_id, coup)
+            except Exception as e:
+                print("Coup erreur : " + str(e))
 
 
     def handle_chat_line(self, event, game_id):
@@ -128,17 +147,26 @@ def main():
 
             if len(games) >= 10:
                 print("Decline challenge : declined!")
-                client.bots.decline_challenge(event['challenge']['id'])
+                try:
+                    client.bots.decline_challenge(event['challenge']['id'])
+                except Exception as e:
+                    print("Decline challenge exception : " + str(e))
                 continue
 
             variant_key = event['challenge']['variant']['key']
             if variant_key != 'standard':
                 print(f"Decline challenge non-standard '{variant_key}' : declined!")
-                client.bots.decline_challenge(event['challenge']['id'])
+                try:
+                    client.bots.decline_challenge(event['challenge']['id'])
+                except Exception as e:
+                    print("Decline challenge exception : " + str(e))
                 continue
 
             print("Challenge accepted!")
-            client.bots.accept_challenge(event['challenge']['id'])
+            try:
+                client.bots.accept_challenge(event['challenge']['id'])
+            except Exception as e:
+                print("Accept challenge exception : " + str(e))
 
         elif event['type'] == 'gameStart':
             print("Game start!")

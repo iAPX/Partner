@@ -12,7 +12,7 @@ You should attach your working directory using Drive -> C -> Mount folder as har
 You could also create a floppy disk image containing CHESS.EXE + BIBLIO.DAT (< 600 KB) and attach it with Drive -> A -> Mount a disk or CD image file, then `a:`
 
 ## GCC compiled for modern CLI Requirements
-You need at least a 32 bit platform, 512KB available RAM, 1MB storage (executable + BIBLIO.DAT) and you should be good.<br/>
+You need at least a 32 bit platform, 512KB available RAM, 1MB storage (executable + BIBLIO.DAT) and you should be ok.<br/>
 Use Xterm-256 or at least Xterm-16.<br/>
 
 No serial communication is natively supported at this point for gcc-compiled Partner.
