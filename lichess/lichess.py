@@ -133,7 +133,7 @@ def main():
 
             variant_key = event['challenge']['variant']['key']
             if variant_key != 'standard':
-                print("Decline challenge non-standard '{variant_key}' : declined!")
+                print(f"Decline challenge non-standard '{variant_key}' : declined!")
                 client.bots.decline_challenge(event['challenge']['id'])
                 continue
 

@@ -61,11 +61,11 @@ void	lichess_joue_coup(char *move, int trait)
     py2 = move[3] - '1' + 1;
 
     switch(move[4]) {
-        // case 'Q' : piece_promotion = DAME+trait; break;
+        case 'Q' : piece_promotion = DAME+trait; break;
         case 'R' : piece_promotion = TOUR+trait; break;
         case 'B' : piece_promotion = FOU+trait; break;
         case 'N' : piece_promotion = CAVALIER+trait; break;
-        default : piece_promotion = 0;
+        default : break;
     }
 
     piece = echiquier[py][px];
