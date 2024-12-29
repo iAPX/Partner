@@ -1,4 +1,5 @@
 import berserk
+import random
 import time
 import threading
 import subprocess
@@ -95,14 +96,16 @@ class Game(threading.Thread):
             return
         
         print("Ton coup? ")
+        start_time = time.perf_counter_ns()
         output = subprocess.check_output(
             ["../portable/partner", "lichess", event['moves']],
             encoding="ascii",
             errors="ignore",
             text=True
             )
+        end_time = time.perf_counter_ns()
         coup = output.split("////", 1)[-1].strip().lower()
-        print("Coup de Partner: " + coup + "\n")
+        print("Coup de Partner: " + coup + ", temps: " + str((end_time - start_time) / 1_000_000) + "ms\n")
         if coup == "@0@0":
             pass
             # client.bots.resign_game(game_id)
@@ -145,21 +148,43 @@ def main():
             print(f"Challenge {event['challenge']['id']}")
             print(event)
 
+            # no bots
+            """
+            if event['challenge']['challenger']['title'] == 'BOT':
+                print("Decline challenge bot : declined!")
+                try:
+                    client.bots.decline_challenge(event['challenge']['id'])
+                except Exception as e:
+                    print("Decline challenger bot exception : " + str(e))
+                continue
+            """
+
             if len(games) >= 10:
                 print("Decline challenge : declined!")
                 try:
                     client.bots.decline_challenge(event['challenge']['id'])
                 except Exception as e:
-                    print("Decline challenge exception : " + str(e))
+                    print("Decline challenge 10 games exception : " + str(e))
                 continue
 
+            # Only regular Chess
             variant_key = event['challenge']['variant']['key']
             if variant_key != 'standard':
                 print(f"Decline challenge non-standard '{variant_key}' : declined!")
                 try:
                     client.bots.decline_challenge(event['challenge']['id'])
                 except Exception as e:
-                    print("Decline challenge exception : " + str(e))
+                    print("Decline challenge non-standard exception : " + str(e))
+                continue
+
+            # No correspondence games
+            speed = event['challenge']['speed']
+            if speed == 'correspondence':
+                print(f"Decline challenge speed '{speed}' : declined!")
+                try:
+                    client.bots.decline_challenge(event['challenge']['id'])
+                except Exception as e:
+                    print("Decline challenge correspondence exception : " + str(e))
                 continue
 
             print("Challenge accepted!")

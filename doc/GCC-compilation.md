@@ -26,7 +26,7 @@ As a vi user myself, you could use CTL-C to quit, but the expected command is `*
 - -Wno-extern-initializer : old code, old rules!
 
 Example:
-`gcc -I./gcc-includes -Wno-invalid-source-encoding -Wno-macro-redefined -Wno-c++11-compat-deprecated-writable-strings -Wno-extern-initializer -o partner partner.cpp`
+`gcc -I./gcc-includes -Wno-invalid-source-encoding -Wno-macro-redefined -Wno-c++11-compat-deprecated-writable-strings -Wno-extern-initializer -O3 -o partner partner.cpp`
 
 
 ## The tricks
