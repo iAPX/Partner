@@ -35,7 +35,7 @@ void lichess(char * moves) {
     visu_echiquier();
 
     // Recherche coup *L2
-    int coup=analyse_niveau2(1);
+    int coup=analyse_niveau3();
     
     // sortie du résultat
     gotoxy(1, 30);

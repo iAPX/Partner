@@ -44,7 +44,11 @@
 #define elseif	   else if
 
 
-#define	ADVERSE(c)	(((c)==BLANC) ? NOIR:BLANC)
+#define MAX_COUPS		128
+#define MAX_LEVELS		32
+
+
+#define	ADVERSE(c)	((c==BLANC) ? NOIR : BLANC)
 
 
 //	Module d'include initialisant les variables du programme d'�chec
@@ -57,11 +61,11 @@ int		trait_act, profondeur_act;
 int		valeur_piece[32];
 
 short	table_clouage[16][16];
-int		liste_coups[32][128], table_roque[32];
-long	valeur_coup[32][128];
+int		liste_coups[MAX_LEVELS][MAX_COUPS], table_roque[MAX_LEVELS];
+long	valeur_coup[MAX_LEVELS][MAX_COUPS];
 int		table_piece1[32], table_prise[32];
-int		nb_coups[32];
-int		meilleur_note[32], meilleur_coup[32];
+int		nb_coups[MAX_LEVELS];
+int		meilleur_note[MAX_LEVELS], meilleur_coup[MAX_LEVELS];
 int		gpy, gpx, gpy2, gpx2;
 
 int		cavalier_x[8], cavalier_y[8];
@@ -93,7 +97,7 @@ int		echec(int cote, int sa_py, int sa_px);
 long	evalue(void);
 long	old_eval(int flag_affiche);
 long	old_eval2(int flag_affiche);
-long	old_eval3(int flag_affiche);
+long	old_eval3(int flag_affiche, int flag_materiel);
 
 int	generateur(int niveau, int trait, int dernier_coup=0);
 // int	generateur2(int niveau, int trait);
@@ -103,7 +107,7 @@ void	tri_coups(int niveau);
 void	preselection(int phase, int trait, int niveau);
 
 
-int		analyse_prises(int cote, int py, int px, int fl, int py_piece, int px_piece);
+int		analyse_prise(int cote, int py, int px, int fl, int py_piece, int px_piece, int flag_affiche);
 long	eval_position(void);
 long	eval_pions(void);
 long	eval_materiel(void);

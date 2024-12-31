@@ -1,11 +1,11 @@
 /*
-		G‚n‚rateurs de coups jouables et descente d'arbres ...
+		Gï¿½nï¿½rateurs de coups jouables et descente d'arbres ...
 		Elagage itou...
 */
 
 
 void	joue_coup(int coup, int trait, int niveau)
-{ // Joue le coup demand‚, imm‚diatement
+{ // Joue le coup demandï¿½, immï¿½diatement
 int		py, px, py2, px2, piece;
 int		depl=0;
 
@@ -48,7 +48,7 @@ else
 	if( piece==PION+trait ) if( py2==8 || py2==1 ) echiquier[py2][px2]=DAME+trait;
 
 	if( (piece & PIECE)==ROI )
-		{ // GŠre le drapeau roque !!!
+		{ // Gï¿½re le drapeau roque !!!
 		if( trait==NOIR ) depl=4;
 		table_roque[niveau+1]=table_roque[niveau] & (240 >> depl);
 		}
@@ -68,7 +68,7 @@ else
 
 
 void	dejoue_coup(int coup, int trait, int niveau)
-{ // D‚joue le coup sp‚cifi‚ !!!
+{ // Dï¿½joue le coup spï¿½cifiï¿½ !!!
 int		py, px, py2, px2, piece, fl_roque;
 
 if( coup==PETIT_ROQUE )
@@ -104,7 +104,7 @@ else
 
 
 int	generateur(int niveau, int trait, int dernier_coup)
-{ // G‚nŠre les coups du niveau consid‚r‚ !!!
+{ // Gï¿½nï¿½re les coups du niveau considï¿½rï¿½ !!!
 // NE GERE NI LA PRISE EN PASSANT, NI LES SOUS-PROMOTIONS, PROVISOIREMENT !!!
 int 	py, px, piece, la_case, couleur, nbc;
 int		dy_pion, dy, dx, py2, px2, adverse, py_roi;
@@ -131,7 +131,7 @@ for(py=1; py<9; py++) for(px=1; px<9; px++)
 
 // Test initial pour les roques ...
 if( fl_roque & AILE_ROI )
-	{ // Teste si la tour est pr‚sente, le roi, et le terrain libre !!!
+	{ // Teste si la tour est prï¿½sente, le roi, et le terrain libre !!!
 	if( echiquier[py_roi][8]==TOUR+trait && echiquier[py_roi][5]==ROI+trait )
 		if( echiquier[py_roi][6]==0 && echiquier[py_roi][7]==0 )
 			if( echec(trait, py_roi, 5)==0 )
@@ -155,20 +155,20 @@ if( fl_roque & AILE_DAME )
 
 
 
-// Test pour la prise en passant (e.p.), aprŠs le dernier coup ...
+// Test pour la prise en passant (e.p.), aprï¿½s le dernier coup ...
 
 
 
-// Parcourons l'echiquier pour les diff‚rentes piŠces … traiter ...
+// Parcourons l'echiquier pour les diffï¿½rentes piï¿½ces ï¿½ traiter ...
 for(py=1; py<9; py++) for(px=1; px<9; px++)
 	{ la_case=echiquier[py][px]; couleur=la_case & COULEUR;
 	if( couleur==trait )
-		{ // Une piŠce … tester
+		{ // Une piï¿½ce ï¿½ tester
 		piece=la_case & PIECE;
 
 		if( piece==PION )
-			{ // D‚placements et prises, et promotions ..
-			// 1-D‚placement d'une case [+Promotions]
+			{ // Dï¿½placements et prises, et promotions ..
+			// 1-Dï¿½placement d'une case [+Promotions]
 			py2=py+dy_pion;
 			if( echiquier[py2][px]==0 )
 				{ // Essai de coup-ci
@@ -178,7 +178,7 @@ for(py=1; py<9; py++) for(px=1; px<9; px++)
 				echiquier[py2][px]=0;
 				echiquier[py][px]=la_case;
 
-				// 2-D‚placement de deux cases, si la premiŠre est LIBRE!
+				// 2-Dï¿½placement de deux cases, si la premiï¿½re est LIBRE!
 				if( (py==2 && trait==BLANC) || (py==7 && trait==NOIR) )
 					{ py2=py+dy_pion+dy_pion;
 					if( echiquier[py2][px]==0 )
@@ -194,11 +194,11 @@ for(py=1; py<9; py++) for(px=1; px<9; px++)
 				}
 
 
-			// 3-Prise … Droite
+			// 3-Prise ï¿½ Droite
 			if( px<8 )
 				{ py2=py+dy_pion; px2=px+1;
 				if( (echiquier[py2][px2] & COULEUR)==adverse )
-					{ // Essai ce coup-l… !
+					{ // Essai ce coup-lï¿½ !
 					prise=echiquier[py2][px2];
 					echiquier[py][px]=0;
 					echiquier[py2][px2]=la_case;
@@ -208,11 +208,11 @@ for(py=1; py<9; py++) for(px=1; px<9; px++)
 					}
 				}
 
-			// 4-Prise … Gauche
+			// 4-Prise ï¿½ Gauche
 			if( px>1 )
 				{ py2=py+dy_pion; px2=px-1;
 				if( (echiquier[py2][px2] & COULEUR)==adverse )
-					{ // Essai ce coup-l… !
+					{ // Essai ce coup-lï¿½ !
 					prise=echiquier[py2][px2];
 					echiquier[py][px]=0;
 					echiquier[py2][px2]=la_case;
@@ -230,7 +230,7 @@ for(py=1; py<9; py++) for(px=1; px<9; px++)
 				if(py2>0 && py2<9) if(px2>0 && px2<9)
 					{ prise=echiquier[py2][px2];
 					if( (prise & COULEUR)!=trait )
-						{ // Essai ce coup-l… !
+						{ // Essai ce coup-lï¿½ !
 						prise=echiquier[py2][px2];
 						echiquier[py][px]=0;
 						echiquier[py2][px2]=la_case;
@@ -257,7 +257,7 @@ for(py=1; py<9; py++) for(px=1; px<9; px++)
 
 						prise=echiquier[py2][px2];
 						if( (prise & COULEUR)!=trait )
-							{ // Essai ce coup-l… !
+							{ // Essai ce coup-lï¿½ !
 							echiquier[py][px]=0;
 							echiquier[py2][px2]=la_case;
 							if( echec(trait, roi_py, roi_px)==0 ) liste_coups[niveau][nbc++]=(px+py*10)+(px2+py2*10)*100;
@@ -283,7 +283,7 @@ for(py=1; py<9; py++) for(px=1; px<9; px++)
 
 						prise=echiquier[py2][px2];
 						if( (prise & COULEUR)!=trait )
-							{ // Essai ce coup-l… !
+							{ // Essai ce coup-lï¿½ !
 							echiquier[py][px]=0;
 							echiquier[py2][px2]=la_case;
 							if( echec(trait, roi_py, roi_px)==0 ) liste_coups[niveau][nbc++]=(px+py*10)+(px2+py2*10)*100;
@@ -297,7 +297,7 @@ for(py=1; py<9; py++) for(px=1; px<9; px++)
 				}
 			}
 		else if( piece==ROI)
-			{ // Pour les d‚placements du roi ...
+			{ // Pour les dï¿½placements du roi ...
 			for(dy=-1; dy<2; dy++) for(dx=-1; dx<2; dx++)
 				{ py2=py+dy; px2=px+dx;
 				if( py2>0 && py2<9 ) if(px2>0 && px2<9 )
@@ -335,7 +335,7 @@ for(p=0; p<nbc-1;p++)
 			{ tmp_max=valeur_coup[niveau][q]; tmp_ptr=q; }
 
 	if( p!=tmp_ptr )
-		{ // Effectue l'‚change !!!
+		{ // Effectue l'ï¿½change !!!
 		tmp_lswap=valeur_coup[niveau][p]; valeur_coup[niveau][p]=tmp_max; valeur_coup[niveau][tmp_ptr]=tmp_lswap;
 		tmp_swap=liste_coups[niveau][p]; liste_coups[niveau][p]=liste_coups[niveau][tmp_ptr]; liste_coups[niveau][tmp_ptr]=tmp_swap;
 		}
@@ -345,11 +345,17 @@ for(p=0; p<nbc-1;p++)
 
 
 
-int		analyse_prise(int cote, int py, int px, int fl, int py_piece, int px_piece)
+int		analyse_prise(int cote, int py, int px, int fl, int py_piece, int px_piece, int flag_affiche)
 { // Analyse les prises sur cette case !!!
 
+// Bug: don't treat aligned pieces, target <- fou <- dame === target <- dame <- fou ?!?
+// BUG: echecs a la decouverte
+// BUG: clouages non-consideres, ni semi-clouages
+// BUG Erreur d'ordonnancement sur les prises par les pions si la case est initialement vide!
+
 // PROVISOIRE !!!
-return(0);
+//// return(0);
+//// return echiquier[py][px]; // LOL!
 
 int		adversaire, p, q, la_case, piece2, piece;
 int		nb_pieces[4], liste_piece[4][32];
@@ -361,7 +367,7 @@ int		somme, maxi;
 
 if( py_piece!=0 && px_piece!=0 ) { sauve_piece=echiquier[py_piece][px_piece]; echiquier[py_piece][px_piece]=0; }
 
-// 1-Prise de la liste des piŠces attaquantes sur la case ...
+// 1-Prise de la liste des piï¿½ces attaquantes sur la case ...
 nb_pieces[BLANC]=nb_pieces[NOIR]=0;
 sa_py=py; sa_px=px;
 adversaire=ADVERSE(cote);
@@ -387,7 +393,7 @@ adversaire=ADVERSE(cote);
 		}
 
 
-	// 3-Fou ou Dame [DOUBLES ET TRIPLES, arrˆt sur fin ou piŠce <> ]
+	// 3-Fou ou Dame [DOUBLES ET TRIPLES, arrï¿½t sur fin ou piï¿½ce <> ]
 	for( p=0; p<4; p++)
 		{ if( p & 1 ) dy=1; else dy=-1;
 		if( p & 2 ) dx=1; else dx=-1;
@@ -400,7 +406,7 @@ adversaire=ADVERSE(cote);
 				liste_piece[la_case][nb_pieces[la_case]++]=valeur_piece[piece];
 				}
 			else if( piece )
-				{ // Arrˆte l'examen !!!
+				{ // Arrï¿½te l'examen !!!
 				break;
 				}
 			py2+=dy; px2+=dx;
@@ -420,7 +426,7 @@ adversaire=ADVERSE(cote);
 				liste_piece[la_case][nb_pieces[la_case]++]=valeur_piece[piece];
 				}
 			else if( piece )
-				{ // Arrˆte l'examen !!!
+				{ // Arrï¿½te l'examen !!!
 				break;
 				}
 			py2+=dy; px2+=dx;
@@ -453,7 +459,7 @@ if( fl==QPRENABLE )
 	}
 
 
-// 3-Tri l'arbre d‚g‚n‚r‚ (!!!)
+// 3-Tri l'arbre dï¿½gï¿½nï¿½rï¿½ (!!!)
 for( p=0; p<nb_pieces[BLANC]-1; p++ )
 	{ piece=liste_piece[BLANC][p];
 	for( q=p; q<nb_pieces[BLANC]; q++ )
@@ -469,42 +475,45 @@ for( p=0; p<nb_pieces[NOIR]-1; p++ )
 	}
 
 
-/*
-// 3a-Visualiser les piŠces de chaque camp !!!
-for( p=0; p<25; p++)
-	{ gotoxy(60, p+1); cprintf("                    "); }
 
-gotoxy(60,1); cprintf("TRAIT:");
-for( q=2, p=nb_pieces[cote]-1; p>=0; --p, q++ )
-	{ // Afficher cette piŠce
-	gotoxy(60, q);
-	piece=liste_piece[cote][p];
-	if( piece==VALEUR_PION ) cprintf("PION");
-	if( piece==VALEUR_TOUR ) cprintf("TOUR");
-	if( piece==VALEUR_CAVALIER ) cprintf("CAVAL");
-	if( piece==VALEUR_FOU  ) cprintf("FOU");
-	if( piece==VALEUR_DAME ) cprintf("DAME");
-	if( piece==VALEUR_ROI  ) cprintf("ROI");
-	}
+if (flag_affiche) {
+	// 3a-Visualiser les piï¿½ces de chaque camp !!!
+	for( p=0; p<25; p++)
+		{ gotoxy(60, p+8); cprintf("                    "); }
 
-gotoxy(70,1); cprintf("ADVERSE:");
-for( q=2, p=nb_pieces[adversaire]-1; p>=0; --p, q++ )
-	{ // Afficher cette piŠce
-	gotoxy(70, q);
-	piece=liste_piece[adversaire][p];
-	if( piece==VALEUR_PION ) cprintf("PION");
-	if( piece==VALEUR_TOUR ) cprintf("TOUR");
-	if( piece==VALEUR_CAVALIER ) cprintf("CAVAL");
-	if( piece==VALEUR_FOU  ) cprintf("FOU");
-	if( piece==VALEUR_DAME ) cprintf("DAME");
-	if( piece==VALEUR_ROI  ) cprintf("ROI");
-	}
-*/
+	gotoxy(60, 8); cprintf("TRAIT:");
+	for( q=2, p=nb_pieces[cote]-1; p>=0; --p, q++ )
+		{ // Afficher cette piï¿½ce
+		gotoxy(60, q+7);
+		piece=liste_piece[cote][p];
+		if( piece==VALEUR_PION ) cprintf("PION");
+		if( piece==VALEUR_TOUR ) cprintf("TOUR");
+		if( piece==VALEUR_CAVALIER ) cprintf("CAVAL");
+		if( piece==VALEUR_FOU  ) cprintf("FOU");
+		if( piece==VALEUR_DAME ) cprintf("DAME");
+		if( piece==VALEUR_ROI  ) cprintf("ROI");
+		}
 
+	gotoxy(70, 8); cprintf("ADVERSE:");
+	for( q=2, p=nb_pieces[adversaire]-1; p>=0; --p, q++ )
+		{ // Afficher cette piï¿½ce
+		gotoxy(70, q+7);
+		piece=liste_piece[adversaire][p];
+		if( piece==VALEUR_PION ) cprintf("PION");
+		if( piece==VALEUR_TOUR ) cprintf("TOUR");
+		if( piece==VALEUR_CAVALIER ) cprintf("CAVAL");
+		if( piece==VALEUR_FOU  ) cprintf("FOU");
+		if( piece==VALEUR_DAME ) cprintf("DAME");
+		if( piece==VALEUR_ROI  ) cprintf("ROI");
+		}
+
+	gotoxy(60, 21); cprintf("sauve_piece: %d", sauve_piece);
+}
 
 // 4-Si QFinal: Descend l'arbre "DEGENERE" !!!
 if( fl==QFINAL )
 	{
+	// gotoxy(60, 20); cprintf("FINAL!");
 	maxi=-999999; somme=0; piece=echiquier[py][px];
 	if( (piece & COULEUR)==cote ) piece=0;
 	while( nb_pieces[cote]!=0 || sauve_piece!=0 )
@@ -521,7 +530,7 @@ if( fl==QFINAL )
 			piece=liste_piece[cote][ --nb_pieces[adversaire] ];
 			}
 		else
-			{ // Descente termin‚e !!!
+			{ // Descente terminï¿½e !!!
 			break;
 			}
 		}
@@ -530,33 +539,48 @@ if( fl==QFINAL )
 	}
 
 
-// 5-Si QOptimal : Descend "avec d‚licatesse"
+// 5-Si QOptimal : Descend "avec dï¿½licatesse"
 if( fl==QOPTIMAL )
 	{
-	maxi=-999999; somme=0; piece=echiquier[py][px];
-	if( (piece & COULEUR)==cote ) piece=0;
+	somme=0;
+	//// gotoxy(60, 19); cprintf("OPTIMAL!");
+	
+	piece=echiquier[py][px];
+	// Buggy : we don't capture OUR OWN pieces?!?
+	if( (piece & COULEUR)==cote ) piece=0; else piece = valeur_piece[piece & PIECE];
+	if (flag_affiche) {
+		gotoxy(60, 20); cprintf("piece: %d", echiquier[py][px]);
+		gotoxy(1, 25); cprintf("                                                                                "); gotoxy(1, 25);
+	}
+
 	while( nb_pieces[cote]!=0 || sauve_piece!=0 )
 		{ // Prendre ...
-		somme+=piece;
+		if (flag_affiche) cprintf("+%d", piece);
+		somme += piece;
 		if( sauve_piece )
 			{ piece=valeur_piece[sauve_piece]; sauve_piece=0; }
 		else
 			{ piece=liste_piece[cote][ --nb_pieces[cote] ]; }
 
-		if( nb_pieces[adversaire]!=0 && (nb_pieces[cote]==0 || liste_piece[cote][nb_pieces[cote]]>=liste_piece[cote][nb_pieces[adversaire]]) )
+		// Semble bugge...
+		if( nb_pieces[adversaire]!=0 && (nb_pieces[cote]==0 || liste_piece[cote][nb_pieces[cote]-1] >= liste_piece[adversaire][nb_pieces[adversaire]-1]) )
 			{ // On continue la descente ...
-			somme-=piece;
-			piece=liste_piece[cote][ --nb_pieces[adversaire] ];
+			if (flag_affiche) cprintf("-%d", piece);
+			somme -= piece;
+			piece=liste_piece[adversaire][ --nb_pieces[adversaire] ];
 			}
 		else
-			{ if( somme>maxi ) maxi=somme;
-			break;
+			{
+				return somme;
 			}
-
-		if( somme>maxi ) maxi=somme;
 		}
 
-	return(maxi);
+	// Resultat
+	if (flag_affiche) {
+		gotoxy(60, 22); cprintf("Somme: %d", somme);
+	}
+
+	return(somme);
 	}
 
 return(0);

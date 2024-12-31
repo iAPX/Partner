@@ -257,6 +257,35 @@ strcpy( cmd3, cmd); cmd3[4]=0;
 
 if( strcmp(cmd, "*Q")==0  ) return;
 
+if (strncmp(cmd, "*AP ", 4)==0 && strlen(cmd)==6) {
+	// Affiche l'analyse des prises pour une position
+	gotoxy(60, 2); printf("                    ");
+	gotoxy(60, 3); printf("                    ");
+	gotoxy(60, 4); printf("                    ");
+	gotoxy(60, 5); printf("                    ");
+	gotoxy(60, 6); printf("                    ");
+
+	//	Initialiser la partie !!!
+	for(py=1; py<9; py++) for(px=1; px<9; px++)
+		{ echiquier[py][px]=la_partie.p_echiquier[py][px];
+		la_position.p_echiquier[py][px]=la_partie.p_echiquier[py][px]; }
+	table_roque[1]=la_position.p_fl_roque=la_partie.p_fl_roque;
+	trait=la_position.p_trait=la_partie.p_trait;
+
+	px = cmd[4] - '@';
+	py = cmd[5] - '0';
+	valeur = analyse_prise(trait, py, px, QOPTIMAL, 0, 0, VRAI);
+	gotoxy(60, 3); printf("Analyse prise0:%d", valeur);
+	/*
+	valeur = analyse_prise(trait, py, px, QOPTIMAL, py, px, VRAI);
+	gotoxy(60, 4); printf("Analyse priseX:%d", valeur);
+	valeur = analyse_prise(trait, py, px, QFINAL, py, px, VRAI);
+	gotoxy(60, 5); printf("Analyse priseF:%d", valeur);
+	*/
+
+	continue;
+}
+
 if( strcmp(cmd,"*BENCH")==0 )
 	{ // Benchmark des routines d'�chec ...
 	benchmark();
@@ -314,10 +343,10 @@ else if( strcmp(cmd, "*EI")==0 )
 	}
 else if( strcmp(cmd, "*EV")==0 )
 	{ // Visualiser les �valuations
-	old_eval3(VRAI);
+	old_eval3(VRAI, 1);
 	}
 else if( strcmp(cmd, "*CV")==0 )
-	{ // Visualiser les coups jou�s
+	{ // Visualiser les coups generes
 	affiche_liste_gene();
 	}
 else if( strcmp(cmd, "*EE")==0 )
@@ -413,19 +442,19 @@ else if( strcmp(cmd3,"*QO ")==0 || strcmp(cmd3,"*QF ")==0 || strcmp(cmd3,"*QP ")
 		{ // On v�rifie !!!
 		if( cmd[2]=='O' )
 			{ // Optimal ...
-			valeur=analyse_prise(trait, py, px, QOPTIMAL,0,0);
+			valeur=analyse_prise(trait, py, px, QOPTIMAL,0,0, VRAI);
 			gotoxy(1, 24); cprintf("                        ");
 			gotoxy(1, 24); cprintf("QOPTIMAL (%s) : %d", &cmd[4], valeur);
 			}
 		else if( cmd[2]=='F' )
 			{ // Finale !!!
-			valeur=analyse_prise(trait, py, px, QFINAL ,0,0);
+			valeur=analyse_prise(trait, py, px, QFINAL ,0,0, VRAI);
 			gotoxy(1, 24); cprintf("                          ");
 			gotoxy(1, 24); cprintf("QFINAL (%s) : %d", &cmd[4], valeur);
 			}
 		else
 			{ // Possible
-			valeur=analyse_prise(trait, py, px, QPRENABLE, 0,0);
+			valeur=analyse_prise(trait, py, px, QPRENABLE, 0,0, VRAI);
 			gotoxy(1, 24); cprintf("                          ");
 			gotoxy(1, 24); cprintf("QPRENABLE (%s) : %s", &cmd[4], ((valeur>0) ? "OUI" : "NON") );
 			}
@@ -455,7 +484,7 @@ else if( strcmp(cmd,"*L0")==0 || strcmp(cmd,"*L1")==0 || strcmp(cmd,"*L2")==0 ||
 	else if( strcmp(cmd,"*L2")==0 )
 		{ coup=analyse_niveau2(0); }
 	else
-		{ coup=analyse_niveau2(1); }
+		{ coup=analyse_niveau3(); }
 
 
 	if( coup )

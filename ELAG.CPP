@@ -1,38 +1,41 @@
 /*
-		Fonctions d'‚lagage a-priori et de repromotion …-fortiori
-		des positions du g‚n‚rateur de coup.
+		Fonctions d'ï¿½lagage a-priori et de repromotion ï¿½-fortiori
+		des positions du gï¿½nï¿½rateur de coup.
 */
 
 
 void	preselection(int phase, int trait, int niveau)
-{ // Note les coups existants et choisi ceux … traiter !!!
-int		p, q, valeur, py, px, py2, px2;
+{ // Note les coups existants et choisi ceux ï¿½ traiter !!!
+int		p, q, valeur, py, px, py2, px2, py3, px3;
 int		nbc, nbc2, coup, coup2;
 int		roi_py, roi_px;
 int		ligne, ligne2;
 
-int		fl_echec_adverse=0, valeur_prise=0, piece;
-
+int		fl_echec_adverse=0, valeur_prise, valeur_risque, valeur_attaque, piece;
+int		risque_maxi, nb_risque, case_risque =0 ;
 
 //	Initialisation de constantes
-for(py=1; py<9; py++) for(px=1; px<9; px++) if(echiquier[py][px]==ROI+(3-trait)) { roi_py=py; roi_px=px; py=8; px=8; }
+for(py=1; py<9; py++) for(px=1; px<9; px++) if(echiquier[py][px]==ROI + ADVERSE(trait)) { roi_py=py; roi_px=px; py=8; px=8; }
 nbc=nb_coups[niveau];
 if( trait==BLANC ) {ligne=1; ligne2=2;} else {ligne=8; ligne2=7;}
 
 for( p=0; p<nbc; p++)
 	{ // Calcule une valeur additive ...
 	coup=liste_coups[niveau][p];
-	px=coup % 10; coup=(coup-px) / 10; py=coup % 10; coup=(coup-py) / 10;
-	px2=coup % 10; coup=(coup-px2)/10; py2=coup % 10;
+	px=coup % 10; coup=(coup-px) / 10;
+	py=coup % 10; coup=(coup-py) / 10;
+	px2=coup % 10; coup=(coup-px2)/10;
+	py2=coup % 10;
+	coup=liste_coups[niveau][p]; // Effet de bord de marde!
+
 	valeur=0;
 
 	// 1-Valeur de la prise ???
-	valeur_prise=valeur_piece[ echiquier[py2][px2] ];
+	valeur_prise=valeur_piece[ echiquier[py2][px2] & PIECE ];
 	piece=echiquier[py][px] & PIECE;
 
 	joue_coup( coup, trait, niveau);
-	nbc2=generateur( niveau+1, ADVERSE(trait) );
-
+	nbc2=generateur( niveau+1, ADVERSE(trait), coup);
 
 	// 2-Echec de l'adversaire, case non prenable/prise gagnante
 	if( echec(ADVERSE(trait), roi_py, roi_px ) )
@@ -43,10 +46,10 @@ for( p=0; p<nbc; p++)
 
 
 	if( phase==OUVERTURE )
-		{ // RŠgle employ‚es pour l'ouverture !!!
+		{ // Rï¿½gle employï¿½es pour l'ouverture !!!
 		if( coup==PETIT_ROQUE || coup==GRAND_ROQUE )
-			{ // Bon pour nous ‡a le roque !!!
-			valeur+=200;
+			{ // Bon pour nous ï¿½a le roque !!!
+			valeur+=100;
 			}
 		else
 			{
@@ -78,27 +81,48 @@ for( p=0; p<nbc; p++)
 
 		// 4-La dame peut attendre, non ???
 
-		// xx-Mobilit‚ maximale ...
+		// xx-Mobilitï¿½ maximale ...
 		valeur -= nbc2 *2;
-		if( fl_echec_adverse ) valeur+=50;
+		if( fl_echec_adverse ) valeur+=20;
 		}
 	else if( phase==MILIEU )
-		{ // RŠgles employ‚es durant le milieu
+		{ // Rï¿½gles employï¿½es durant le milieu
 
-		// xx-Mobilit‚ maximale ...
-		valeur -= nbc2 *15;
-		if( fl_echec_adverse ) valeur+=100;
+		// xx-Mobilitï¿½ maximale ...
+		valeur -= nbc2 *5;
+		if( fl_echec_adverse ) valeur+=50;
 		}
 	else
-		{ // RŠgles de la finale !!!
+		{ // Rï¿½gles de la finale !!!
 
 
-		// xx-Mobilit‚ maximale & echec … l'adversaire !!!
-		valeur -= nbc2 *50;
-		if( fl_echec_adverse ) valeur+=200;
+		// xx-Mobilitï¿½ maximale & echec ï¿½ l'adversaire !!!
+		valeur -= nbc2 * 20;
+		if( fl_echec_adverse ) valeur+=100;
 		}
 
-	valeur+=valeur_prise * 100;
+	valeur += valeur_prise * 100;
+
+	// Risky Business!
+	// @TODO risque maximum + (nombre de risques > 0 aprÃ¨s le maxi)
+	valeur_risque = 0;
+	risque_maxi = 0;
+	nb_risque = 0;
+	for (py3=1; py3<9; py3++) for (px3=1; px3<9; px3++)
+		if ((echiquier[py3][px3] & COULEUR) == trait) {
+			int risque = analyse_prise(ADVERSE(trait), py3, px3, QOPTIMAL, 0, 0, FAUX);
+			if (risque > 0) nb_risque++;
+			if (risque>risque_maxi) {
+				risque_maxi = risque;
+				case_risque = risque_maxi * 1000 + px3 * 10 + py3;
+			}
+		}
+	if (risque_maxi > 0) {
+		valeur -= risque_maxi * 80 + (nb_risque - 1) * 10;
+	}
+	//// valeur = echiquier[py2][px2]; // Lol
+	//valeur -= valeur_risque;
+
 	valeur_coup[niveau][p]=valeur;
 	dejoue_coup( coup, trait, niveau);
 	}

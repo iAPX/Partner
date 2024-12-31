@@ -45,7 +45,7 @@ class Game(threading.Thread):
                 client.bots.post_message(game_id, "Je joue les blancs!")
                 print("Premier coup? ")
                 output = subprocess.check_output(
-                    ["../portable/partner", "lichess", ""],
+                    ["../portable/partner.lichess", "lichess", ""],
                     encoding="ascii",
                     errors="ignore",
                     text=True
@@ -98,7 +98,7 @@ class Game(threading.Thread):
         print("Ton coup? ")
         start_time = time.perf_counter_ns()
         output = subprocess.check_output(
-            ["../portable/partner", "lichess", event['moves']],
+            ["../portable/partner.lichess", "lichess", event['moves']],
             encoding="ascii",
             errors="ignore",
             text=True

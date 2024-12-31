@@ -3,6 +3,7 @@ private/
 turboc/
 borlandc/
 partner
+partner.lichess
 venv/
 *.log
 

@@ -1,9 +1,9 @@
 
-//	Visualisations … l'‚cran, rapides ...
+//	Visualisations ï¿½ l'ï¿½cran, rapides ...
 
 
 void	visu_echiquier(void)
-{ // Affichons l'‚chiquier … l'‚cran, sans pr‚tentions ...
+{ // Affichons l'ï¿½chiquier ï¿½ l'ï¿½cran, sans prï¿½tentions ...
 int		py, px, piece, la_case;
 long	tmp_note;
 
@@ -11,7 +11,7 @@ long	tmp_note;
 textbackground(0);
 textcolor(7);
 
-// Recopie la partie en m‚moire dans l'‚chiquier de travail !!!
+// Recopie la partie en mï¿½moire dans l'ï¿½chiquier de travail !!!
 for( px=1; px<9; px++ ) for( py=1; py<9; py++ ) echiquier[py][px]=la_partie.p_echiquier[py][px];
 
 for( px=1; px<=8; px++ )
@@ -31,7 +31,7 @@ for( px=1; px<=8; px++ )
 		if( la_case==0 )
 			cprintf(" ");
 		else
-			{ // Couleur … choisir et piŠce … voir ...
+			{ // Couleur ï¿½ choisir et piï¿½ce ï¿½ voir ...
 			if( (la_case & COULEUR)==BLANC ) textcolor(15); else textcolor(0);
 			piece=la_case & PIECE;
 			if( piece==PION ) cprintf("p");
@@ -47,14 +47,14 @@ textbackground(0);
 textcolor(7);
 
 gotoxy(1,12);
-cprintf("CHESS-C  PARTENAIRE  v2.1");
+cprintf("CHESS-C  PARTENAIRE  v2.1.1");
 
-tmp_note=old_eval3(FAUX);
+tmp_note=old_eval3(FAUX, 1);
 gotoxy(1, 13);
 cprintf("Note actuelle pour les Blancs :%8ld", tmp_note);
 
 
-// Affichage num‚ro de coup (biblio)
+// Affichage numï¿½ro de coup (biblio)
 gotoxy(1, 14);
 cprintf("BIBLIO NUMCOUP=%2d", (biblio_numcoup+1)/2 );
 if( biblio_numcoup & 1 ) cprintf(" BLANCS"); else cprintf(" NOIRS ");
@@ -67,7 +67,7 @@ if( phase==FINALE ) cprintf("Finale   ");
 if( trait==BLANC ) cprintf(" aux Blancs"); else cprintf(" aux Noirs ");
 
 gotoxy(1, 17);
-cprintf("M‚moire libre:%3ldKo", ( (long) coreleft())/1024l );
+cprintf("Mï¿½moire libre:%3ldKo", ( (long) coreleft())/1024l );
 
 gotoxy(1, 18);
 cprintf("BLANC:");
@@ -82,7 +82,7 @@ if( la_partie.p_fl_roque & (PETIT_ROQUE<<4) ) cprintf("o-o"); else cprintf("   "
 
 
 void	affiche_gene(int y, int x, int coup)
-{ // Effectue l'affichage du coup … l'‚cran ..
+{ // Effectue l'affichage du coup ï¿½ l'ï¿½cran ..
 int		py, px, py2, px2;
 char	s[8];
 
@@ -112,9 +112,10 @@ else
 
 
 void	affiche_liste_gene(void)
-{ // Affiche tous les coups g‚n‚r‚s, de haut en bas de l'‚cran, num‚rot‚s...
+{ // Affiche tous les coups gï¿½nï¿½rï¿½s, de haut en bas de l'ï¿½cran, numï¿½rotï¿½s...
 int		p, py, px;
 int		roi_py, roi_px, nb_rep;
+int		py2, px2;
 
 for( py=1; py<26; py++) { gotoxy(50, py); cprintf("                              "); }
 for(py=1; py<9; py++) for(px=1; px<9; px++) if(echiquier[py][px]==ROI+ADVERSE(trait)) {roi_py=py; roi_px=px;}
@@ -126,14 +127,14 @@ generateur(0, trait);
 
 preselection( OUVERTURE, trait, 0);
 
-for( p=0; p<nb_coups[0] && p<50; p++)
+for( p=0; p<nb_coups[0] && p<25; p++)
 	{
 	if( p<25 ) {py=p+1; px=50;} else {py=p-24; px=65;}
 	gotoxy(px,py);
 	cprintf("%2d:", p+1);
 	affiche_gene( py, px+4, liste_coups[0][p] );
 
-	// V‚rifie Echec, Mat, Pat et Nb_R‚ponses...
+	// Vï¿½rifie Echec, Mat, Pat et Nb_Rï¿½ponses...
 	joue_coup( liste_coups[0][p], trait, 0 );
 	nb_rep=generateur(1, 3-trait);
 	if( echec(3-trait, roi_py, roi_px) )
@@ -142,10 +143,13 @@ for( p=0; p<nb_coups[0] && p<50; p++)
 		{ if( nb_rep ) cprintf(" "); else cprintf("#"); }
 
 	// cprintf("%2d", nb_rep );
-	cprintf("%3ld", valeur_coup[0][p] );
+	cprintf("%6ld", valeur_coup[0][p] );
 	dejoue_coup( liste_coups[0][p], trait, 0);
 	}
 
 	gotoxy(1,21); cprintf("ROI adverse en %c%1d", roi_px+64, roi_py);
+
+// Controle visuel!
+visu_echiquier();
 }
 
