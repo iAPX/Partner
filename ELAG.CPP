@@ -69,10 +69,10 @@ for( p=0; p<nbc; p++)
 				// 3-Fous sortis !
 				if( echiquier[ligne][3]!=FOU+trait || echiquier[ligne][6]!=FOU+trait )
 					{
-					valeur+=10;
+					valeur+=5;
 
 					// 4-Dame sortie
-					if( echiquier[ligne][4]!=DAME+trait ) valeur+=5;
+					if( echiquier[ligne][4]!=DAME+trait ) valeur+=2;
 					}
 				}
 			}
@@ -88,8 +88,13 @@ for( p=0; p<nbc; p++)
 	else if( phase==MILIEU )
 		{ // R�gles employ�es durant le milieu
 
+		// On sort l'artillerie!
+		if ( echiquier[ligne][3]!=FOU+trait ) valeur+=10;
+		if ( echiquier[ligne][6]!=FOU+trait ) valeur+=10;
+		if ( echiquier[ligne][4]!=DAME+trait ) valeur+=30;
+
 		// xx-Mobilit� maximale ...
-		valeur -= nbc2 *5;
+		valeur -= nbc2 * 5;
 		if( fl_echec_adverse ) valeur+=50;
 		}
 	else

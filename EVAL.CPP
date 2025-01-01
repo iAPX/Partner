@@ -1315,15 +1315,15 @@ else if( phase==MILIEU )
 
 	// b-FIANCHETTO violent
 	delta=fous_diago[BLANC][0]-fous_diago[BLANC][1];
-	if( delta==-1 || delta==1 ) position[BLANC]+=10;
+	if( delta==-1 || delta==1 ) position[BLANC]+=30;
 	else
 		{ delta=fous_diago[BLANC][2]-fous_diago[BLANC][3];
-		if( delta==-1 || delta==1 ) position[BLANC]+=10;
+		if( delta==-1 || delta==1 ) position[BLANC]+=30;
 		}
-	position[BLANC]+=fous_mobilite[BLANC]*2;
+	position[BLANC]+=fous_mobilite[BLANC] * 5;
 
 	// c-Mobilit� de la DAME ...
-	position[BLANC]+=dame_mobilite[BLANC];
+	position[BLANC] += dame_mobilite[BLANC];
 
 	// d-Pions structur�s
 	position[BLANC]-=pions_kamikaze[BLANC]*5;
@@ -1360,12 +1360,12 @@ else if( phase==MILIEU )
 
 	// b-FIANCHETTO violent
 	delta=fous_diago[NOIR][0]-fous_diago[NOIR][1];
-	if( delta==-1 || delta==1 ) position[NOIR]+=10;
+	if( delta==-1 || delta==1 ) position[NOIR]+=30;
 	else
 		{ delta=fous_diago[NOIR][2]-fous_diago[NOIR][3];
-		if( delta==-1 || delta==1 ) position[NOIR]+=10;
+		if( delta==-1 || delta==1 ) position[NOIR]+=30;
 		}
-	position[NOIR]+=fous_mobilite[NOIR]*2;
+	position[NOIR]+=fous_mobilite[NOIR]*5;
 
 	// c-Mobilit� de la DAME ...
 	position[NOIR]+=dame_mobilite[NOIR];
@@ -1425,10 +1425,10 @@ else if( phase==FINALE )
 	position[BLANC]+=fous_mobilite[BLANC];
 
 	delta=fous_diago[BLANC][0]-fous_diago[BLANC][1];
-	if( delta==-1 || delta==1 ) position[BLANC]+=20;
+	if( delta==-1 || delta==1 ) position[BLANC] += 50;
 	else
 		{ delta=fous_diago[BLANC][2]-fous_diago[BLANC][3];
-		if( delta==-1 || delta==1 ) position[BLANC]+=20;
+		if( delta==-1 || delta==1 ) position[BLANC] += 50;
 		}
 
 		// Fous sur diagonale ROI

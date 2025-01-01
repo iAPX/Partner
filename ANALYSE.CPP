@@ -1085,7 +1085,7 @@ for( p=0; p<nbc1 && p<50; p++)
 
 		nbc2=generateur(2, ADVERSE(trait) );
 		preselection(phase, ADVERSE(trait), 2);
-		if ( nbc2>12 ) nbc2=12;
+		if ( nbc2>8 ) nbc2=8;
 
 		mini2=999999l;
 		for(p2=0; p2<nbc2; p2++)
@@ -1095,7 +1095,7 @@ for( p=0; p<nbc1 && p<50; p++)
 			
 			nbc3=generateur(3, trait);
 			preselection(phase, trait, 3);
-			if (nbc3>8) nbc3=8;
+			if (nbc3>6) nbc3=6;
 
 			maxi3=-999999l;
 			for(p3=0; p3<nbc3; p3++)
@@ -1199,6 +1199,10 @@ for( p=0; p<nbc1 && p<50; p++)
 				}
 			}
 		val1=mini2;
+
+		// Roque boost!
+		if (coup1==PETIT_ROQUE || coup1==GRAND_ROQUE) val1+=200;
+
 		if( val1>maxi1 ) maxi1=val1; // Pas trop utile ?!?
 		valeur_coup[1][p1]=val1;
 
