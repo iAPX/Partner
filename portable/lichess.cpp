@@ -4,7 +4,7 @@
  */
 
 void	lichess_joue_coup(char *move, int trait);
-void	lichess_affiche_gene(int coup);
+void	lichess_affiche_gene(int coup, int score);
 
 
 void lichess(char * moves) {
@@ -35,11 +35,12 @@ void lichess(char * moves) {
     visu_echiquier();
 
     // Recherche coup *L2
-    int coup=analyse_niveau3();
+    int coup = analyse_niveau3();
+    int score = valeur_coup[1][0];
     
     // sortie du résultat
     gotoxy(1, 30);
-    lichess_affiche_gene(coup);
+    lichess_affiche_gene(coup, score);
 
     // Libérer les positions
     free( (void *)les_positions );
@@ -108,7 +109,7 @@ void	lichess_joue_coup(char *move, int trait)
 }
 
 
-void	lichess_affiche_gene(int coup)
+void	lichess_affiche_gene(int coup, int score)
 { // Effectue l'affichage du coup trouvé vers stdout
 int		py, px, py2, px2;
 char	s[8];
@@ -123,5 +124,5 @@ s[1]=py+48;
 s[2]=px2+64;
 s[3]=py2+48;
 s[4]=0;
-printf("Coup:////%s\n", s);
+printf("Score:||||%d||||\nCoup:////%s\n", score, s);
 }

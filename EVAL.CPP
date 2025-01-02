@@ -1090,8 +1090,10 @@ for( py=1; py<=8; py++)
 
 if( roi_present[trait]==0 ) return(-999999);
 if( roi_present[3-trait]==0 ) return(999999);
-//if( fou[BLANC]==2 ) materiel[BLANC]++;
-//if( fou[NOIR]==2 ) materiel[NOIR]++;
+
+// Favorise le fianchetto !!
+if( fou[BLANC]==2 ) materiel[BLANC]++;
+if( fou[NOIR]==2 ) materiel[NOIR]++;
 
 
 if( phase==OUVERTURE )

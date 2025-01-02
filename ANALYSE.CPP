@@ -1201,7 +1201,7 @@ for( p=0; p<nbc1 && p<50; p++)
 		val1=mini2;
 
 		// Roque boost!
-		if (coup1==PETIT_ROQUE || coup1==GRAND_ROQUE) val1+=200;
+		if (coup1==PETIT_ROQUE || coup1==GRAND_ROQUE) val1 += 200;
 
 		if( val1>maxi1 ) maxi1=val1; // Pas trop utile ?!?
 		valeur_coup[1][p1]=val1;

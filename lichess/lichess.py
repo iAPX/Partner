@@ -51,6 +51,7 @@ class Game(threading.Thread):
                     text=True
                     )
                 coup = output.split("////", 1)[-1].strip().lower()
+                # Le score est inutile sur le premier coup!
                 print("Premier coup de Partner: " + coup + "\n")
                 # coup = input().strip()
                 try:
@@ -104,8 +105,9 @@ class Game(threading.Thread):
             text=True
             )
         end_time = time.perf_counter_ns()
+        score = output.split("||||")[1].strip().lower()
         coup = output.split("////", 1)[-1].strip().lower()
-        print("Coup de Partner: " + coup + ", temps: " + str((end_time - start_time) / 1_000_000) + "ms\n")
+        print("Coup de Partner: " + coup + ", temps: " + str((end_time - start_time) / 1_000_000) + "ms, score = " + score + "\n")
         if coup == "@0@0":
             pass
             # client.bots.resign_game(game_id)
