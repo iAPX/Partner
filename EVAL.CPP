@@ -62,59 +62,6 @@ else
 }
 
 
-long	evalue(void)
-{ // Evaluation globale de la position ...
-long	tmp_note=0;
-
-tmp_note+= eval_position() * param_position[phase];
-tmp_note+= eval_pions() * param_pions[phase];
-tmp_note+= eval_materiel() * param_materiel[phase];
-tmp_note+= eval_strategie() * param_strategie[phase];
-tmp_note+= eval_attaque_roi() * param_attaque_roi[phase];
-tmp_note+= eval_liberte() * param_liberte[phase];
-
-return( tmp_note );
-}
-
-
-
-long	eval_position(void)
-{ // Evaluation de la position globale
-return(0);
-}
-
-
-long	eval_pions(void)
-{ // Evalue la structure des pions, les pions doubl�s, les pions pass�s
-return(0);
-}
-
-
-long	eval_materiel(void)
-{ // Evaluation correcte de la note du mat�riel
-return(0);
-}
-
-
-long	eval_strategie(void)
-{ // Evaluation strategique (Attaque/D�fense/...)
-return(0);
-}
-
-
-long	eval_attaque_roi(void)
-{ // Evaluation de l'attaque du roi adverse, et de sa zone ...
-return(0);
-}
-
-
-long	eval_liberte(void)
-{ // Evaluation des libert�s de chaque camp, note composite ...
-return(0);
-}
-
-
-
 
 
 //	POUR COMPATIBILITE GARDER (et tester la diff�rence !!!)
@@ -163,7 +110,7 @@ for( py=1; py<=8; py++)
 		{ cote=piece & COULEUR;
 		piece&=PIECE;
 
-		if( phase!=FINALE && piece!=PION ) position[cote]=position[cote]+table_position[py][px];
+		if( phase!=FINALE && piece!=PION ) position[cote] += table_position[py][px];
 		if( piece==PION )
 			{ // Gestion des pions ...
 			materiel[cote] += VALEUR_PION;
@@ -829,6 +776,8 @@ return( note );
 
 
 // Evaluation semi-bonne, avec d�veloppement pris en compte et QPrise !
+// @TODO clouages en liaison avec attaques ET mobilité : une pièce clouée n'est pas mobile ni attaquante!
+// @TODO plus positionnel, se développer
 long	old_eval3(int flag_affiche, int flag_materiel)
 { // Evaluation de l'�tat actuel de la partie ...
 int	materiel[4], fou[4], roi_present[4];
@@ -901,7 +850,7 @@ for( py=1; py<=8; py++)
 
 		if( piece==PION )
 			{ // Gestion des pions ...
-			materiel[cote]++;
+			materiel[cote]+=VALEUR_PION;
 
 			if( cote==BLANC )
 				{
@@ -912,7 +861,10 @@ for( py=1; py<=8; py++)
 					for( p=py+1; p<9; p++) if( echiquier[p][px-1]==PION+NOIR || echiquier[p][px]==PION+NOIR || echiquier[p][px+1]==PION+NOIR ) break;
 					if( p==9 ) pions_passe[BLANC]++;
 					}
-				if( py==7 ) pion_avance[BLANC]+=20; else pion_avance[BLANC]+=py-2;
+
+				if( py==7 ) pion_avance[BLANC]+=20;
+				else if( py==6 ) pion_avance[BLANC]+=10; 
+				else pion_avance[BLANC]+=py-2;
 				}
 			else
 				{
@@ -924,7 +876,9 @@ for( py=1; py<=8; py++)
 					if( p==0 ) pions_passe[NOIR]++;
 					}
 
-				if( py==2 ) pion_avance[NOIR]+=20; else pion_avance[NOIR]+=7-py;
+				if( py==2 ) pion_avance[NOIR]+=20; 
+				else if( py==3 ) pion_avance[NOIR]+=10; 
+				else pion_avance[NOIR]+=7-py;
 				}
 
 			// Compte les pions doubl�s, PROPREMENT !!!
@@ -1088,6 +1042,13 @@ for( py=1; py<=8; py++)
 		}
 	}
 
+// Ouch!!!
+//// return (materiel[trait] - materiel[ADVERSE(trait)]) * 100 / (materiel[trait] + materiel[ADVERSE(trait)]);
+// if( fou[BLANC]==2 ) materiel[BLANC]++;
+// if( fou[NOIR]==2 ) materiel[NOIR]++;
+return (materiel[trait] - materiel[ADVERSE(trait)]) * 100;
+
+
 if( roi_present[trait]==0 ) return(-999999);
 if( roi_present[3-trait]==0 ) return(999999);
 
@@ -1101,7 +1062,7 @@ if( phase==OUVERTURE )
 	ponderation_mobilite=  1; // 100;
 	ponderation_materiel=100; // 800;
 	ponderation_position=  3; // 100;
-	ponderation_risque=100;
+	ponderation_risque= 50;
 
 
 	// Positionnel � traiter ici ...
@@ -1476,9 +1437,15 @@ else if( phase==FINALE )
 note_mobilite=(mobilite[BLANC]-mobilite[NOIR]) * ponderation_mobilite;
 note_materiel=(materiel[BLANC]-materiel[NOIR]) * ponderation_materiel;
 note_position=(position[BLANC]-position[NOIR]) * ponderation_position;
-note_risque = (prise_maxi[BLANC] - prise_maxi[NOIR]) * ponderation_risque;  // Potentiel de risque
+if (trait==BLANC) {
+	note_risque = (prise_maxi[BLANC] / 2 - prise_maxi[NOIR]) * ponderation_risque;  // Potentiel de risque maximisant la defense
+}
+else {
+	note_risque = (prise_maxi[BLANC] - prise_maxi[NOIR] / 2) * ponderation_risque;  // Potentiel de risque maximisant la defense
+}
 
 note=note_mobilite + note_materiel + note_position + note_risque;
+note += rand() % 5;  // Not always the same note!
 
 
 if( flag_affiche )

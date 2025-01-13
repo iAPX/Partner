@@ -86,13 +86,13 @@ void	affiche_gene(int y, int x, int coup)
 int		py, px, py2, px2;
 char	s[8];
 
-gotoxy(x,y);
+if (y>0 and x>0) gotoxy(x,y);
 
 // Affiche le coup, maintenant
 if( coup==GRAND_ROQUE )
-	{ cprintf("o-o-o"); }
+	{ cprintf("O-O-O"); }
 else if( coup==PETIT_ROQUE )
-	{ cprintf(" o-o "); }
+	{ cprintf(" O-O "); }
 else
 	{
 	px=coup % 10; coup=(coup-px)/10;

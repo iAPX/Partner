@@ -1,6 +1,6 @@
 /*
-		Recherche des mats, en 1 … n coups ...
-		routine unifi‚e, r‚cursive !!!
+		Recherche des mats, en 1 ï¿½ n coups ...
+		routine unifiï¿½e, rï¿½cursive !!!
 */
 
 
@@ -10,7 +10,7 @@ int	py, px, roi_py, roi_px;
 int	coup_echec;
 int	p;
 
-// Recherche d'un mat en 1 seul coup, trŠs simple :
+// Recherche d'un mat en 1 seul coup, trï¿½s simple :
 for(py=1; py<9; py++) for(px=1; px<9; px++)
 	if(echiquier[py][px]==ROI+(3-trait)) {roi_py=py; roi_px=px; py=8; px=8;}
 
@@ -43,9 +43,9 @@ else
 
 	nbc1=generateur(niveau, trait);
 
-	// Tri des coups maintenant, suivant les libert‚s donn‚es ...
+	// Tri des coups maintenant, suivant les libertï¿½s donnï¿½es ...
 	for(p1=0; p1<nbc1; p1++)
-		{ // Calcul des libert‚s :
+		{ // Calcul des libertï¿½s :
 		joue_coup( liste_coups[niveau][p1], trait, niveau);
 
 		nb_rep=generateur(niveau+1, ADVERSE(trait) );
@@ -66,17 +66,17 @@ else
 		}
 
 
-	// Pour chaque coup, tri‚
+	// Pour chaque coup, triï¿½
 	for(p1=0; p1<nbc1; p1++)
-		{ // Pour chaque coup adverse, reste-t'il en ‚chec ???
+		{ // Pour chaque coup adverse, reste-t'il en ï¿½chec ???
 		joue_coup( liste_coups[niveau][p1], trait, niveau);
 
 		nbc2=generateur(niveau+1, ADVERSE(trait) );
 
 
-		// Tri les r‚ponses, comme ‡a...
+		// Tri les rï¿½ponses, comme ï¿½a...
 		for(p2=0; p2<nbc2; p2++)
-			{ // V‚rifie s'il est en ‚chec encore ???
+			{ // Vï¿½rifie s'il est en ï¿½chec encore ???
 			joue_coup( liste_coups[niveau+1][p2], ADVERSE(trait), niveau+1);
 			valeur_coup[niveau+1][p2]=generateur( niveau+2, ADVERSE(trait) );
 			dejoue_coup( liste_coups[niveau+1][p2], ADVERSE(trait), niveau+1);
@@ -86,7 +86,7 @@ else
 
 		fl2=1;
 		for(p2=0; p2<nbc2 && fl2!=0; p2++)
-			{ // V‚rifie s'il est en ‚chec encore ???
+			{ // Vï¿½rifie s'il est en ï¿½chec encore ???
 			joue_coup( liste_coups[niveau+1][p2], ADVERSE(trait), niveau+1);
 			if( mat(trait, niveau+2, profondeur-1, limite)==0 ) fl2=0;
 			dejoue_coup( liste_coups[niveau+1][p2], ADVERSE(trait), niveau+1);
@@ -118,13 +118,13 @@ else
 
 	nbc1=generateur(niveau, trait);
 
-	// Tri des coups maintenant, suivant les libert‚s donn‚es ...
+	// Tri des coups maintenant, suivant les libertï¿½s donnï¿½es ...
 	for(p1=0; p1<nbc1; p1++)
-		{ // Calcul des libert‚s :
+		{ // Calcul des libertï¿½s :
 		joue_coup( liste_coups[niveau][p1], trait, niveau);
 
 		nb_rep=generateur(niveau+1, ADVERSE(trait) );
-		if( nb_rep>limite ) valeur=-999999; else valeur=-nb_rep;
+		if( nb_rep>limite ) valeur=-999980 - niveau; else valeur=-nb_rep;
 
 		dejoue_coup( liste_coups[niveau][p1], trait, niveau);
 		if( nb_rep==0 ) return( liste_coups[niveau][p1] );
@@ -141,17 +141,17 @@ else
 		}
 
 
-	// Pour chaque coup, tri‚
-	for(p1=0; p1<nbc1 && valeur_coup[niveau][p1]>-999999; p1++)
-		{ // Pour chaque coup adverse, reste-t'il en ‚chec ???
+	// Pour chaque coup, triï¿½
+	for(p1=0; p1<nbc1 && valeur_coup[niveau][p1]>-999980; p1++)
+		{ // Pour chaque coup adverse, reste-t'il en ï¿½chec ???
 		joue_coup( liste_coups[niveau][p1], trait, niveau);
 
 		nbc2=generateur(niveau+1, ADVERSE(trait) );
 
 
-		// Tri les r‚ponses, comme ‡a...
+		// Tri les rï¿½ponses, comme ï¿½a...
 		for(p2=0; p2<nbc2; p2++)
-			{ // V‚rifie s'il est en ‚chec encore ???
+			{ // Vï¿½rifie s'il est en ï¿½chec encore ???
 			joue_coup( liste_coups[niveau+1][p2], ADVERSE(trait), niveau+1);
 			valeur_coup[niveau+1][p2]=generateur( niveau+2, ADVERSE(trait) );
 			dejoue_coup( liste_coups[niveau+1][p2], ADVERSE(trait), niveau+1);
@@ -161,7 +161,7 @@ else
 
 		fl2=1;
 		for(p2=0; p2<nbc2 && fl2!=0; p2++)
-			{ // V‚rifie s'il est en ‚chec encore ???
+			{ // Vï¿½rifie s'il est en ï¿½chec encore ???
 			joue_coup( liste_coups[niveau+1][p2], ADVERSE(trait), niveau+1);
 			if( quick_mat(trait, niveau+2, profondeur-1, limite)==0 ) fl2=0;
 			dejoue_coup( liste_coups[niveau+1][p2], ADVERSE(trait), niveau+1);

@@ -325,7 +325,7 @@ return(nbc);
 void	tri_coups(int niveau)
 { // Tri "con" pour l'instant, QuickSort plsu tard ?!?
 int		p, q, tmp_ptr, tmp_swap, nbc;
-long	tmp_max, tmp_lswap;
+long	tmp_max, tmp_lswap, *tmp_facteurs;
 
 nbc=nb_coups[niveau];
 for(p=0; p<nbc-1;p++)
@@ -338,10 +338,10 @@ for(p=0; p<nbc-1;p++)
 		{ // Effectue l'�change !!!
 		tmp_lswap=valeur_coup[niveau][p]; valeur_coup[niveau][p]=tmp_max; valeur_coup[niveau][tmp_ptr]=tmp_lswap;
 		tmp_swap=liste_coups[niveau][p]; liste_coups[niveau][p]=liste_coups[niveau][tmp_ptr]; liste_coups[niveau][tmp_ptr]=tmp_swap;
+		tmp_facteurs=facteurs_coups[p]; facteurs_coups[p]=facteurs_coups[tmp_ptr]; facteurs_coups[tmp_ptr]=tmp_facteurs;
 		}
 	}
 }
-
 
 
 
@@ -579,6 +579,154 @@ if( fl==QOPTIMAL )
 	if (flag_affiche) {
 		gotoxy(60, 22); cprintf("Somme: %d", somme);
 	}
+
+	return(somme);
+	}
+
+return(0);
+}
+
+
+int		analyse_prise_facteur(int cote, int py, int px, int piece_attaquante)
+{ // Analyse les prises sur cette case pour cette piece!!!
+// QOPTIMAL mais retourne valeur_piece[piece_present]-valeur_piece[piece] si ça n'est pas à elle de commencer!
+
+
+// Bug: don't treat aligned pieces, target <- fou <- dame === target <- dame <- fou ?!?
+// BUG: echecs a la decouverte
+// BUG: clouages non-consideres, ni semi-clouages
+// BUG Erreur d'ordonnancement sur les prises par les pions si la case est initialement vide!
+
+int		adversaire, p, q, la_case, piece2, piece;
+int		nb_pieces[4], liste_piece[4][32];
+int		sa_py, sa_px, py2, px2, dy, dx;
+int		valeur_piece_attaquee = valeur_piece[echiquier[py][px] & PIECE];
+int		valeur_piece_attaquante = valeur_piece[piece_attaquante & PIECE];
+
+int		somme, maxi;
+
+
+// 1-Prise de la liste des pi�ces attaquantes sur la case ...
+nb_pieces[BLANC]=nb_pieces[NOIR]=0;
+sa_py=py; sa_px=px;
+adversaire=ADVERSE(cote);
+
+	// 1-Pion ???
+	if( echiquier[sa_py-1][sa_px-1]==PION+BLANC ) liste_piece[BLANC][nb_pieces[BLANC]++]=VALEUR_PION;
+	if( echiquier[sa_py-1][sa_px+1]==PION+BLANC ) liste_piece[BLANC][nb_pieces[BLANC]++]=VALEUR_PION;
+	if( echiquier[sa_py+1][sa_px-1]==PION+NOIR ) liste_piece[NOIR][nb_pieces[NOIR]++]=VALEUR_PION;
+	if( echiquier[sa_py+1][sa_px+1]==PION+NOIR ) liste_piece[NOIR][nb_pieces[NOIR]++]=VALEUR_PION;
+
+
+	// 2-Cavalier ???
+	for( p=0; p<8; p++)
+		{
+		py2=cavalier_y[p]+sa_py; px2=cavalier_x[p]+sa_px;
+		if( py2<=8 && py2>=1 ) if( px2<=8 && px2>=1 )
+			{ la_case=echiquier[py2][px2];
+			if( (la_case & PIECE)==CAVALIER )
+				{ la_case&=COULEUR;
+				liste_piece[la_case][nb_pieces[la_case]++]=VALEUR_CAVALIER;
+				}
+			}
+		}
+
+
+	// 3-Fou ou Dame [DOUBLES ET TRIPLES, arr�t sur fin ou pi�ce <> ]
+	for( p=0; p<4; p++)
+		{ if( p & 1 ) dy=1; else dy=-1;
+		if( p & 2 ) dx=1; else dx=-1;
+		py2=sa_py+dy; px2=sa_px+dx;
+
+		while( py2<=8 && py2>=1 && px2<=8 && px2>=1 )
+			{ la_case=echiquier[py2][px2]; piece=la_case & PIECE;
+			if( piece==DAME || piece==FOU )
+				{ la_case &= COULEUR;
+				liste_piece[la_case][nb_pieces[la_case]++]=valeur_piece[piece];
+				}
+			else if( piece )
+				{ // Arr�te l'examen !!!
+				break;
+				}
+			py2+=dy; px2+=dx;
+			}
+		}
+
+	// 4-Tour ou Dame ???
+	for( p=0; p<4; p++)
+		{ if( p & 1 ) dy=1; else dy=-1;
+		if( p & 2 ) {dx=dy; dy=0;} else dx=0;
+		py2=sa_py+dy; px2=sa_px+dx;
+
+		while( py2<=8 && py2>=1 && px2<=8 && px2>=1 )
+			{ la_case=echiquier[py2][px2]; piece=la_case & PIECE;
+			if( piece==DAME || piece==TOUR )
+				{ la_case &= COULEUR;
+				liste_piece[la_case][nb_pieces[la_case]++]=valeur_piece[piece];
+				}
+			else if( piece )
+				{ // Arr�te l'examen !!!
+				break;
+				}
+			py2+=dy; px2+=dx;
+			}
+		}
+
+
+	// 5-Roi ???
+	for( py2=sa_py-1; py2<=sa_py+1; py2++ )
+		for( px2=sa_px-1; px2<=sa_px+1; px2++)
+			if( px2>0 && px2<9 && py2>0 && py2<9 )
+				if( px2!=sa_px || py2!=sa_py )
+					{ // On y va !!!
+					la_case=echiquier[py2][px2];
+					if( (la_case & PIECE)==ROI )
+						{ la_case &= COULEUR;
+						liste_piece[la_case][nb_pieces[la_case]++]=VALEUR_ROI;
+						}
+					}
+
+
+
+// 3-Tri l'arbre d�g�n�r� (!!!)
+for( p=0; p<nb_pieces[BLANC]-1; p++ )
+	{ piece=liste_piece[BLANC][p];
+	for( q=p; q<nb_pieces[BLANC]; q++ )
+		if( piece<liste_piece[BLANC][q] ) { piece2=liste_piece[BLANC][q]; liste_piece[BLANC][q]=piece; piece=piece2; }
+	liste_piece[BLANC][p]=piece;
+	}
+
+for( p=0; p<nb_pieces[NOIR]-1; p++ )
+	{ piece=liste_piece[NOIR][p];
+	for( q=p; q<nb_pieces[NOIR]; q++ )
+		if( piece<liste_piece[NOIR][q] ) { piece2=liste_piece[NOIR][q]; liste_piece[NOIR][q]=piece; piece=piece2; }
+	liste_piece[NOIR][p]=piece;
+	}
+
+// 5-Si QOptimal : Descend "avec d�licatesse"
+	{
+	somme=0;
+	
+	piece=echiquier[py][px];
+	// Buggy : we don't capture OUR OWN pieces?!?
+	if( (piece & COULEUR)==cote ) piece=0; else piece = valeur_piece[piece & PIECE];
+
+	while( nb_pieces[cote]!=0 )
+		{ // Prendre ...
+		somme += piece;
+		piece=liste_piece[cote][ --nb_pieces[cote] ];
+
+		// Semble bugge...
+		if( nb_pieces[adversaire]!=0 && (nb_pieces[cote]==0 || liste_piece[cote][nb_pieces[cote]-1] >= liste_piece[adversaire][nb_pieces[adversaire]-1]) )
+			{ // On continue la descente ...
+			somme -= piece;
+			piece=liste_piece[adversaire][ --nb_pieces[adversaire] ];
+			}
+		else
+			{
+				return somme;
+			}
+		}
 
 	return(somme);
 	}

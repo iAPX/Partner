@@ -464,7 +464,7 @@ else if( strcmp(cmd,"*BV")==0 )
 	{ // Visualisons les premi�res lignes de la biblioth�que ...
 	visu_biblio();
 	}
-else if( strcmp(cmd,"*L0")==0 || strcmp(cmd,"*L1")==0 || strcmp(cmd,"*L2")==0 || strcmp(cmd,"*L3")==0 )
+else if( strncmp(cmd,"*L", 2)==0 )
 	{ // r�flexion niveaux 0 & 1
 
 	//	Initialiser la partie !!!
@@ -483,8 +483,14 @@ else if( strcmp(cmd,"*L0")==0 || strcmp(cmd,"*L1")==0 || strcmp(cmd,"*L2")==0 ||
 		{ coup=analyse_niveau1(); }
 	else if( strcmp(cmd,"*L2")==0 )
 		{ coup=analyse_niveau2(0); }
+	else if( strcmp(cmd,"*L3")==0 )
+		{ coup=analyse_niveau2(1); }
+	else if( strcmp(cmd,"*L4")==0 )
+		{ coup=analyse_niveau3(8, 8, 6, 6, 4, 4, 0, 0, 0, 0); }
+	else if( strcmp(cmd,"*L5")==0 )
+		{ coup=analyse_niveau3(8, 8, 6, 6, 4, 4, 4, 4, 0, 0); }
 	else
-		{ coup=analyse_niveau3(); }
+		{ coup=analyse_niveau3(12, 12, 10, 10, 8, 8, 6, 6, 0, 0); }
 
 
 	if( coup )

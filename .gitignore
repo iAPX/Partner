@@ -6,4 +6,9 @@ partner
 partner.lichess
 venv/
 *.log
+*.bin
+*.db
+*.moves
+library/
+preselection/
 

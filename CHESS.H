@@ -45,7 +45,8 @@
 
 
 #define MAX_COUPS		128
-#define MAX_LEVELS		32
+#define MAX_LEVELS		64
+#define MAX_FACTEURS	64
 
 
 #define	ADVERSE(c)	((c==BLANC) ? NOIR : BLANC)
@@ -63,6 +64,7 @@ int		valeur_piece[32];
 short	table_clouage[16][16];
 int		liste_coups[MAX_LEVELS][MAX_COUPS], table_roque[MAX_LEVELS];
 long	valeur_coup[MAX_LEVELS][MAX_COUPS];
+long	*facteurs_coups[MAX_COUPS];
 int		table_piece1[32], table_prise[32];
 int		nb_coups[MAX_LEVELS];
 int		meilleur_note[MAX_LEVELS], meilleur_coup[MAX_LEVELS];
@@ -94,7 +96,6 @@ int		analyse_niveau1(void);			// Fonction de base de recherche de coups!!!
 int		analyse_niveau2(int elagage);	// Fonction plus puissante de recherche
 
 int		echec(int cote, int sa_py, int sa_px);
-long	evalue(void);
 long	old_eval(int flag_affiche);
 long	old_eval2(int flag_affiche);
 long	old_eval3(int flag_affiche, int flag_materiel);
@@ -105,16 +106,13 @@ void	clouages(int cote, int sa_py, int sa_px);
 void	gene_prises(int niveau, int trait);
 void	tri_coups(int niveau);
 void	preselection(int phase, int trait, int niveau);
+void	preselection_test(int phase, int trait, int niveau);
+void	preselection_facteurs(int trait, int niveau);
 
 
 int		analyse_prise(int cote, int py, int px, int fl, int py_piece, int px_piece, int flag_affiche);
-long	eval_position(void);
-long	eval_pions(void);
-long	eval_materiel(void);
-long	eval_strategie(void);
-long	eval_attaque_roi(void);
-long	eval_liberte(void);
-long	eval_tactique(void);
+int		analyse_prise_facteur(int cote, int py, int px, int piece_attaquante);
+
 
 
 int		mat1(int trait, int niveau);
