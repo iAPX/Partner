@@ -124,7 +124,7 @@ la_partie.p_activite=la_partie.p_attaque=0;
 la_partie.p_fl_roque=((PETIT_ROQUE|GRAND_ROQUE)<<4) + (PETIT_ROQUE|GRAND_ROQUE);
 
 
-
+valeur_piece[0]=0;
 valeur_piece[PION+BLANC]=valeur_piece[PION+NOIR]=valeur_piece[PION]=VALEUR_PION;
 valeur_piece[TOUR+BLANC]=valeur_piece[TOUR+NOIR]=valeur_piece[TOUR]=VALEUR_TOUR;
 valeur_piece[CAVALIER+BLANC]=valeur_piece[CAVALIER+NOIR]=valeur_piece[CAVALIER]=VALEUR_CAVALIER;
@@ -486,11 +486,11 @@ else if( strncmp(cmd,"*L", 2)==0 )
 	else if( strcmp(cmd,"*L3")==0 )
 		{ coup=analyse_niveau2(1); }
 	else if( strcmp(cmd,"*L4")==0 )
-		{ coup=analyse_niveau3(8, 8, 6, 6, 4, 4, 0, 0, 0, 0); }
+		{ coup=analyse_niveau3(8, 8, 6, 6, 4, 4, 0, 0, 0, 0, 0); }
 	else if( strcmp(cmd,"*L5")==0 )
-		{ coup=analyse_niveau3(8, 8, 6, 6, 4, 4, 4, 4, 0, 0); }
+		{ coup=analyse_niveau3(8, 8, 6, 6, 4, 4, 4, 4, 0, 0, 0); }
 	else
-		{ coup=analyse_niveau3(12, 12, 10, 10, 8, 8, 6, 6, 0, 0); }
+		{ coup=analyse_niveau3(12, 12, 10, 10, 8, 8, 6, 6, 0, 0, 0); }
 
 
 	if( coup )

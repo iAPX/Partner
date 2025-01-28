@@ -3,8 +3,8 @@
  * Lichess support
  */
 
-void    lichess_init_position(char *moves);
-void	lichess_joue_coup(char *move, int trait);
+int     lichess_init_position(char *moves);
+int	    lichess_joue_coup(char *move, int trait);
 void	lichess_affiche_preselection(int coup, long score);
 void	lichess_affiche_gene(int coup, int score);
 void	lichess_affiche_facteurs(int coup, long score, long *facteurs);
@@ -12,12 +12,21 @@ void	lichess_affiche_facteurs(int coup, long score, long *facteurs);
 
 void lichess(char *moves, int secondes)
 {
-    int coup;
+    int coup, coup_repetition;
     int score;
 
     printf("Début lichess :\n%s\n", moves);
 
-    lichess_init_position(moves);
+    coup_repetition = lichess_init_position(moves);
+    if (coup_repetition != 0) {
+        printf("Coup de repetition : %d, ", coup_repetition);
+        affiche_gene(0, 0, coup_repetition);
+        printf("\n");
+    } else {
+        printf("Aucun coup de repetition\n");
+    }
+    //// exit(0);  // Tests
+
 
     // Pour les humains ;)
     clrscr();
@@ -28,39 +37,34 @@ void lichess(char *moves, int secondes)
         coup = analyse_niveau2(1);
     } else if (secondes == 1) {
         // Ça va vite, 30s/partie!
-        coup = analyse_niveau3(6, 8, 6, 8, 6, 8, 0, 0, 0, 0);
-        // coup = analyse_niveau3(3, 6, 3, 6, 3, 6, 3, 6, 0, 0);
+        coup = analyse_niveau3(3, 4, 3, 4, 3, 4, 0, 0, 0, 0, coup_repetition);
     } else if(secondes == 2) {
         // 1mn par partie
-        coup = analyse_niveau3(8, 8, 8, 8, 8, 8, 0, 0, 0, 0);
-        // coup = analyse_niveau3(3, 7, 3, 7, 3, 7, 3, 7, 0, 0);
-    } else if(secondes <= 4) {
+        coup = analyse_niveau3(3, 4, 3, 4, 3, 4, 0, 0, 0, 0, coup_repetition);
+    } else if(secondes <= 5) {
         // 2mn ou moins par partie
-        //coup = analyse_niveau3(12, 12, 10, 10, 8, 8, 0, 0, 0, 0);
-        coup = analyse_niveau3(4, 8, 4, 8, 4, 8, 4, 8, 0, 0);
-        //// coup = analyse_niveau3(3, 4, 3, 4, 3, 4, 2, 4, 2, 4);
-        // coup = analyse_niveau3(2, 6, 2, 6, 2, 6, 2, 6, 2, 6);
-    } else if(secondes <= 8) {
+        coup = analyse_niveau3(4, 6, 4, 6, 3, 5, 0, 0, 0, 0, coup_repetition);
+    } else if(secondes <= 7) {
+        // 3mn ou moins par partie
+        coup = analyse_niveau3(4, 6, 4, 6, 4, 6, 0, 0, 0, 0, coup_repetition);
+    } else if(secondes <= 9) {
         // 4mn ou moins par partie
-        // coup = analyse_niveau3(14, 14, 12, 12, 10, 10, 0, 0, 0, 0);
-        coup = analyse_niveau3(5, 8, 5, 8, 5, 8, 5, 8, 0, 0);
-        // coup = analyse_niveau3(3, 6, 3, 6, 2, 6, 2, 6, 2, 6);
-    } else if(secondes <= 16) {
+        coup = analyse_niveau3(5, 7, 5, 7, 5, 7, 0, 0, 0, 0, coup_repetition);
+    } else if(secondes <= 17) {
         // 8mn par partie
-        // coup = analyse_niveau3(16, 16, 12, 12, 12, 12, 0, 0, 0, 0);
-        coup = analyse_niveau3(7, 8, 6, 8, 6, 8, 6, 8, 0, 0);
-        // coup = analyse_niveau3(3, 6, 3, 6, 3, 6, 3, 6, 3, 6);
-    } else if(secondes <= 30) {
+        coup = analyse_niveau3(4, 6, 4, 6, 3, 5, 3, 5, 0, 0, coup_repetition);
+    } else if(secondes <= 31) {
         // 15mn par partie
-        // coup = analyse_niveau3(8, 8, 7, 8, 7, 8, 7, 8, 0, 0);
-        coup = analyse_niveau3(4, 6, 4, 6, 3, 6, 3, 6, 3, 6);
-    } else if(secondes <= 60) {
+        coup = analyse_niveau3(5, 6, 5, 6, 5, 6, 5, 6, 0, 0, coup_repetition);
+    } else if(secondes <= 62) {
         // 30mn par partie
-        // coup = analyse_niveau3(8, 8, 8, 8, 8, 8, 8, 8, 0, 0);
-        coup = analyse_niveau3(4, 7, 4, 7, 4, 7, 3, 7, 3, 7);
+        coup = analyse_niveau3(6, 8, 6, 7, 6, 7, 5, 7, 0, 0, coup_repetition);
+    } else if(secondes <= 95) {
+        // 45mn par partie
+        coup = analyse_niveau3(6, 8, 6, 8, 6, 8, 6, 8, 0, 0, coup_repetition);
     } else {
         // On a le temps!
-        coup = analyse_niveau3(5, 8, 5, 8, 5, 8, 5, 8, 5, 8);
+        coup = analyse_niveau3(5, 7, 4, 6, 4, 6, 4, 6, 4, 6, coup_repetition);
     }
 
     score = valeur_coup[1][0];
@@ -77,13 +81,14 @@ void lichess(char *moves, int secondes)
 
 void lichess_preselection(char *moves, int max_nbc)
 {
-    int nbc;
+    int nbc, coup_repetition;
 
-    lichess_init_position(moves);
+    coup_repetition = lichess_init_position(moves);
 
     nbc = generateur(1, trait, 0);
-    preselection_test(MILIEU, trait);
+    preselection_test(MILIEU, trait, coup_repetition);
 
+    max_nbc = nbc;
     for (int p = 0; p < nbc && p < max_nbc; p++) {
         if (p>0) printf(" ");
         lichess_affiche_preselection(liste_coups[1][p], valeur_coup[1][p]);
@@ -97,38 +102,15 @@ void lichess_preselection(char *moves, int max_nbc)
 
 void lichess_eval(char *moves)
 {
-    long old_score;
-    int delta_nb_risque = 0;
-    int val8 = 0;
-
-    lichess_init_position(moves);
-
-    phase = MILIEU;    // Forcé!
-    old_score = old_eval3(FAUX, VRAI);
-
-    if (trait == NOIR) old_score = - old_score;
-
-    printf("%ld", old_score);
-}
-
-void lichess_eval_new(char *moves)
-{
-    int nbc, px, py, piece, cote;
     long score;
 
     lichess_init_position(moves);
+    phase = MILIEU;    // Forcé!
 
-    score = 0;
-    nbc = generateur(1, trait, 0);
-    if (nbc > 0)
-        preselection(MILIEU, trait, 1);
-        // score = valeur_coup[1][0];
+    score = new_eval();
 
-    for (py=1; py<9; py++) for(px=1; px<9; px++) {
-        cote = echiquier[py][px] & COULEUR;
-        piece = echiquier[py][px] & PIECE;
-        if (cote==BLANC) score += valeur_piece[piece]; else score -= valeur_piece[piece];
-    }
+    // Normalize for White side!
+    if (trait == NOIR) score = -score;
 
     printf("%ld", score);
 }
@@ -147,7 +129,7 @@ void lichess_preselection_facteurs(char *moves)
     lichess_init_position(moves);
 
     nbc = generateur(1, trait, 0);
-    preselection_facteurs(trait, 1);
+    preselection_facteurs(trait, 1, 0);
 
     for (int p = 0; p < nbc; p++) {
         if (p>0) printf(" ");
@@ -160,9 +142,28 @@ void lichess_preselection_facteurs(char *moves)
     for (int c=0; c<MAX_COUPS; c++) free(facteurs_coups[c]);
 }
 
-
-void lichess_init_position(char *moves)
+void lichess_eval_facteurs(char *moves)
 {
+    int nbc;
+    long facteurs[32];
+
+    lichess_init_position(moves);
+    phase = MILIEU;    // Forcé!
+
+    for (int i=0; i<32; i++) facteurs[i] = 0;
+    new_eval_facteurs(facteurs);
+
+    for (int i=0; i<32; i++) {
+        if (i>0) printf("/");
+        printf("%ld", facteurs[i]);
+    }
+    printf("\n");
+}
+
+
+int lichess_init_position(char *moves)
+{
+    int coups[MAX_COUPS], nb_coups=0;
     char *move;
 
     // Initialiser les_positions
@@ -176,7 +177,7 @@ void lichess_init_position(char *moves)
     while (move != NULL) {
         strupr(move);
         //// printf("Coup: %s\n", move);
-        lichess_joue_coup(move, trait);
+        coups[nb_coups++] = lichess_joue_coup(move, trait);
         trait = ADVERSE(trait);
         move = strtok(NULL, " ");  // Get the next token
     }
@@ -184,20 +185,34 @@ void lichess_init_position(char *moves)
     // Déterminer la phase
     determine_phase();
     for(int px=1; px<9; px++ ) for(int py=1; py<9; py++ ) la_partie.p_echiquier[py][px] = echiquier[py][px];
+
+    // Déterminer le risque des 3 coups répétés
+    if (nb_coups > 8) {
+        if (coups[nb_coups-1] == coups[nb_coups-5])
+        if (coups[nb_coups-2] == coups[nb_coups-6])
+        if (coups[nb_coups-3] == coups[nb_coups-7])
+        if (coups[nb_coups-4] == coups[nb_coups-8])
+            // Coups répétés
+            return coups[nb_coups-4];
+    }
+
+    return 0;
 }
 
 
-void	lichess_joue_coup(char *move, int trait)
+int	lichess_joue_coup(char *move, int trait)
 { // Joue le coup demand�, imm�diatement
     int		py, px, py2, px2, piece, piece_prise;
     int		piece_promotion = DAME + trait;
     int		depl=0;
+    int     coup;
 
     // x1y1x2y2[promotion]
     px = move[0] - 'A' + 1;
     py = move[1] - '1' + 1;
     px2 = move[2] - 'A' + 1;
     py2 = move[3] - '1' + 1;
+    coup = py2*1000 + px2*100 + py*10 + px;
 
     // Autorise les roques
     table_roque[1] = 255;
@@ -207,7 +222,7 @@ void	lichess_joue_coup(char *move, int trait)
         case 'R' : piece_promotion = TOUR+trait; break;
         case 'B' : piece_promotion = FOU+trait; break;
         case 'N' : piece_promotion = CAVALIER+trait; break;
-        default : break;
+        default : piece_promotion = DAME+trait; break;
     }
 
     piece = echiquier[py][px];
@@ -247,6 +262,8 @@ void	lichess_joue_coup(char *move, int trait)
             echiquier[py2][px2] = piece_promotion;
         }
     }
+
+    return coup;
 }
 
 

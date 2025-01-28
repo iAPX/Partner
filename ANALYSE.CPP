@@ -959,7 +959,7 @@ return( liste_coups[1][0] );
 
 
 
-int		analyse_niveau3(int elag1, int elag2, int elag3, int elag4, int elag5, int elag6, int elag7, int elag8, int elag9, int elag10)
+int		analyse_niveau3(int elag1, int elag2, int elag3, int elag4, int elag5, int elag6, int elag7, int elag8, int elag9, int elag10, int coup_repetition)
 { // Partie qui joue -presque- comme un pied !!!
 int		coup_echec, coup, p, py, px, roi_py, roi_px;
 int		coup1, nbc1, p1, nb_eval;
@@ -999,9 +999,9 @@ if( phase==FINALE )
 	coup_echec=quick_mat(trait, 1, 3, 4);
 	timer_decompteur+=18L;
 	if( coup_echec==0 ) { coup_echec=quick_mat(trait, 1, 3, 6); }
-	if (coup_echec==0) { coup_echec=quick_mat(trait, 1, 4, 5); }
-	if (coup_echec==0) { coup_echec=quick_mat(trait, 1, 5, 4); }
-	if (coup_echec==0) { coup_echec=quick_mat(trait, 1, 6, 3); }
+	// if (coup_echec==0) { coup_echec=quick_mat(trait, 1, 4, 5); }
+	// if (coup_echec==0) { coup_echec=quick_mat(trait, 1, 5, 4); }
+	// if (coup_echec==0) { coup_echec=quick_mat(trait, 1, 6, 3); }
 
 	if( coup_echec ) return(coup_echec);
 	}
@@ -1011,11 +1011,9 @@ else if (phase==MILIEU) {
 	gotoxy(1, 24); cprintf("*L3: QuickMat 3 ou 4 coups");
 	gotoxy(1, 25); cprintf("                      ");
 
-	timer_decompteur=36L;
-	coup_echec=quick_mat(trait, 1, 3, 3);
-	timer_decompteur+=18L;
-	if( coup_echec==0 ) { coup_echec=quick_mat(trait, 1, 4, 2); }
-	if( coup_echec ) return(coup_echec);
+	// coup_echec=quick_mat(trait, 1, 3, 3);
+	// if( coup_echec==0 ) { coup_echec=quick_mat(trait, 1, 4, 2); }
+	// if( coup_echec ) return(coup_echec);
 }
 
 
@@ -1023,7 +1021,8 @@ else if (phase==MILIEU) {
 gotoxy(1, 24); cprintf("                        ");
 gotoxy(1, 24); cprintf("*L3: Eval et Tri (1c)  ");
 
-eval_initiale=old_eval3(0, 0);
+// eval_initiale=old_eval3(0, 0);
+eval_initiale = new_eval();
 
 nbc1=generateur(1, trait);
 if( nbc1==0 ) return(0);	// AUCUN COUP (MAT ou PAT !!!)
@@ -1032,7 +1031,7 @@ if( nbc1==1 )
 	gotoxy(1, 25); cprintf("1 COUP FORCE!!!       ");
 	return( liste_coups[1][0] );
 	}
-preselection(phase, trait, 1);
+preselection(phase, trait, 1, coup_repetition);
 
 // c2-On affiche la liste des coups, tri�s !!!
 for(py=1; py<9; py++) for(px=1; px<9; px++)
@@ -1056,7 +1055,7 @@ for( p=0; p<nbc1 && p<50; p++)
 	else
 		{ if( nbc2 ) cprintf(" "); else cprintf("#"); }
 
-	cprintf("%3ld", (valeur_coup[1][p]-eval_initiale)/100L );
+	cprintf("%3ld", new_eval()-eval_initiale );
 	dejoue_coup( liste_coups[1][p], trait, 1);
 	}
 
@@ -1068,20 +1067,30 @@ for( p=0; p<nbc1 && p<50; p++)
 	gotoxy(1, 24); cprintf("                      ");
 	gotoxy(1, 24); cprintf("*L3: Eval fd3/fd4");
 
-	maxi1=-999999l;
+	maxi1=-999998l;
 	for(p1=0; p1<nbc1; p1++)
 		{ nb_eval=p1+1;
 		if( p1<25 ) {py=p1+1; px=50;} else {py=p1-24; px=65;}
 		gotoxy(px,py); cprintf("**");
 
 		coup1=liste_coups[1][p1];
+
+		// Gestion de la répétition des coups, plutôt que des positions!
+		if (coup1 == coup_repetition) {
+			val1 = 0l;
+			if( val1>maxi1 ) maxi1=val1; // Pas trop utile ?!?
+			valeur_coup[1][p1]=val1;
+			continue;
+		}
+
 		joue_coup(coup1, trait, 1);
 
 		nbc2=generateur(2, ADVERSE(trait) );
 		preselection(phase, ADVERSE(trait), 2);
 		if ( nbc2>elag2 ) nbc2=elag2;
 
-		mini2=999999l;
+		mini2=999997l;
+		if (nbc2 == 0 && ! is_echec_cote(ADVERSE(trait))) mini2 = 0l;
 		for(p2=0; p2<nbc2; p2++)
 			{ // Recherche la meilleur r�ponse
 			coup2=liste_coups[2][p2];
@@ -1091,7 +1100,8 @@ for( p=0; p<nbc1 && p<50; p++)
 			preselection(phase, trait, 3);
 			if (nbc3>elag3) nbc3=elag3;
 
-			maxi3=-999999l;
+			maxi3=-999996l;
+			if (nbc3 == 0 && ! is_echec_cote(trait)) maxi3 = 0l;
 			for(p3=0; p3<nbc3; p3++)
 				{ // Rechercher la meilleur r�ponse (TRAIT)
 				coup3=liste_coups[3][p3];
@@ -1101,7 +1111,8 @@ for( p=0; p<nbc1 && p<50; p++)
 				preselection(phase, ADVERSE(trait), 4);
 				if( nbc4>elag4 ) nbc4=elag4;
 
-				mini4=999999l;
+				mini4=999995l;
+				if (nbc4 == 0 && ! is_echec_cote(ADVERSE(trait))) mini4 = 0l;
 				for( p4=0; p4<nbc4; p4++ )
 					{ // Rechercher la meilleur r�ponse (ADVERSE)
 					coup4=liste_coups[4][p4];
@@ -1112,7 +1123,8 @@ for( p=0; p<nbc1 && p<50; p++)
 					preselection(phase, trait, 5);
 					if( nbc5>elag5 ) nbc5=elag5;
 
-					maxi5=-999999l;
+					maxi5=-999994l;
+					if (nbc5 == 0 && ! is_echec_cote(trait)) maxi5 = 0l;
 					for( p5=0; p5<nbc5; p5++ )
 						{ coup5=liste_coups[5][p5];
 						joue_coup( coup5, trait, 5);
@@ -1122,38 +1134,22 @@ for( p=0; p<nbc1 && p<50; p++)
 						preselection(phase, ADVERSE(trait), 6);
 						if ( nbc6>elag6 ) nbc6=elag6;
 
-						mini6=999999l;
+						mini6=999993l;
+						if (nbc6 == 0 && ! is_echec_cote(ADVERSE(trait))) mini6 = 0l;
 						for(p6=0; p6<nbc6; p6++)
 							{ coup6=liste_coups[6][p6];
 							joue_coup(coup6, ADVERSE(trait), 6);
 
-
 							if (elag7 == 0 || elag8 == 0) {
-								val6=old_eval3(FAUX, VRAI);
-
-								{ // Analyse de risque, cf. Preselection()
-									int py3, px3;
-									int risque_maxi = 0;
-									int nb_risque = 0;
-									for (py3=1; py3<9; py3++) for (px3=1; px3<9; px3++)
-										if ((echiquier[py3][px3] & COULEUR) == ADVERSE(trait) ) {
-											int risque = analyse_prise(trait, py3, px3, QOPTIMAL, 0, 0, FAUX);
-											if (risque > 0) nb_risque++;
-											if (risque>risque_maxi) {
-												risque_maxi = risque;
-											}
-										}
-									if (risque_maxi > 0) {
-										//// val6 += risque_maxi * 20 + (nb_risque - 1) * 5;
-									}
-								}
+								val6 = new_eval();
 							} else {
 								//// Analyse au 7i�me niveau, LIMITE ACTUELLE !!!
 								nbc7=generateur(7, trait);
 								preselection(phase, trait, 7);
 								if( nbc7>elag7 ) nbc7=elag7;
 
-								maxi7=-999999l;
+								maxi7=-999992l;
+								if (nbc7 == 0 && ! is_echec_cote(trait)) maxi7 = 0l;
 								for( p7=0; p7<nbc7; p7++ )
 									{ coup7=liste_coups[7][p7];
 									joue_coup(coup7, trait, 7);
@@ -1163,62 +1159,22 @@ for( p=0; p<nbc1 && p<50; p++)
 									preselection(phase, ADVERSE(trait), 8);
 									if ( nbc8>elag8 ) nbc8=elag8;
 
-									mini8=999999l;
+									mini8=999991l;
+									if (nbc8 == 0 && ! is_echec_cote(ADVERSE(trait))) mini8 = 0l;
 									for(p8=0; p8<nbc8; p8++)
 										{ coup8=liste_coups[8][p8];
 										joue_coup(coup8, ADVERSE(trait), 8);
 
-
-/*
-										val8=old_eval3(FAUX, VRAI);
-
-										{ // Analyse de risque, cf. Preselection()
-											int py3, px3;
-											int risque_maxi = 0;
-											int nb_risque = 0;
-											for (py3=1; py3<9; py3++) for (px3=1; px3<9; px3++)
-												if ((echiquier[py3][px3] & COULEUR) == ADVERSE(trait) ) {
-													int risque = analyse_prise(trait, py3, px3, QOPTIMAL, 0, 0, FAUX);
-													if (risque > 0) nb_risque++;
-													if (risque>risque_maxi) {
-														risque_maxi = risque;
-													}
-												}
-											if (risque_maxi > 0) {
-												val8 += risque_maxi * 20 + (nb_risque - 1) * 5;
-											}
-										}
-
-										//// val8+=analyse_prise( trait, gpy2, gpx2, QOPTIMAL, 0, 0, FAUX)*80;
-*/
-
-
 										if (elag9 == 0 || elag10 == 0) {
-											val8=old_eval3(FAUX, VRAI);
-
-											{ // Analyse de risque, cf. Preselection()
-												int py3, px3;
-												int risque_maxi = 0;
-												int nb_risque = 0;
-												for (py3=1; py3<9; py3++) for (px3=1; px3<9; px3++)
-													if ((echiquier[py3][px3] & COULEUR) == ADVERSE(trait) ) {
-														int risque = analyse_prise(trait, py3, px3, QOPTIMAL, 0, 0, FAUX);
-														if (risque > 0) nb_risque++;
-														if (risque>risque_maxi) {
-															risque_maxi = risque;
-														}
-													}
-												if (risque_maxi > 0) {
-													//// val8 += risque_maxi * 20 + (nb_risque - 1) * 5;
-												}
-											}
+											val8 = new_eval();
 										} else {
 											//// Analyse au 7i�me niveau, LIMITE ACTUELLE !!!
 											nbc9 = generateur(9, trait);
 											preselection(phase, trait, 9);
 											if( nbc9>elag9 ) nbc9=elag9;
 
-											maxi9=-999999l;
+											maxi9=-999990l;
+											if (nbc9 == 0 && ! is_echec_cote(trait)) maxi9 = 0l;
 											for( p9=0; p9<nbc9; p9++ )
 												{ coup9=liste_coups[9][p9];
 												joue_coup(coup9, trait, 9);
@@ -1228,29 +1184,13 @@ for( p=0; p<nbc1 && p<50; p++)
 												preselection(phase, ADVERSE(trait), 10);
 												if ( nbc10>elag10 ) nbc10=elag10;
 
-												mini10=999999l;
+												mini10=999989l;
+												if (nbc10 == 0 && ! is_echec_cote(ADVERSE(trait))) mini10 = 0l;
 												for(p10=0; p10<nbc10; p10++)
 													{ coup10=liste_coups[10][p10];
 													joue_coup(coup10, ADVERSE(trait), 10);
 
-													val10=old_eval3(FAUX, VRAI);
-
-													{ // Analyse de risque, cf. Preselection()
-														int py3, px3;
-														int risque_maxi = 0;
-														int nb_risque = 0;
-														for (py3=1; py3<9; py3++) for (px3=1; px3<9; px3++)
-															if ((echiquier[py3][px3] & COULEUR) == ADVERSE(trait) ) {
-																int risque = analyse_prise(trait, py3, px3, QOPTIMAL, 0, 0, FAUX);
-																if (risque > 0) nb_risque++;
-																if (risque>risque_maxi) {
-																	risque_maxi = risque;
-																}
-															}
-														if (risque_maxi > 0) {
-															//// val10 += risque_maxi * 20 + (nb_risque - 1) * 5;
-														}
-													}
+													val10 = new_eval();
 
 													valeur_coup[10][p10]=val10;
 
@@ -1331,8 +1271,6 @@ for( p=0; p<nbc1 && p<50; p++)
 				}
 			val2=maxi3;
 
-			// val2=old_eval3(0, 1);
-			//// val2+=analyse_prise( trait, gpy2, gpx2, QOPTIMAL, 0, 0, FAUX)*80;
 			valeur_coup[2][p2]=val2;
 
 			dejoue_coup( coup2, ADVERSE(trait), 2);
@@ -1385,17 +1323,6 @@ for( p=0; p<nbc1 && p<50; p++)
 		dejoue_coup( liste_coups[1][p], trait, 1);
 		}
 
-
-	/*
-	for (p=0; p<6; p++)
-		{
-			py = p+20; px = 50;
-			gotoxy(px,py);
-			cprintf("%d:", p+1);
-			affiche_gene( py, px+4, continuation_coups[p] );
-			cprintf("%8ld", continuation_eval[p] );
-		}
-	*/
 	}
 
 // y-Indiquons le temps

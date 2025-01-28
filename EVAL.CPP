@@ -468,6 +468,15 @@ return(FAUX);
 }
 
 
+int is_echec_cote(int cote)
+{
+	int py, px;
+	for (py=1; py<9; py++) for (px=1; px<9; px++)
+		if (echiquier[py][px]==ROI+cote) return echec(cote, py, px);
+	return FAUX;
+}
+
+
 
 //	Routine de clouages, �-priori bonne � 100% (?!?)
 void	clouages(int cote, int sa_py, int sa_px)
@@ -1042,13 +1051,6 @@ for( py=1; py<=8; py++)
 		}
 	}
 
-// Ouch!!!
-//// return (materiel[trait] - materiel[ADVERSE(trait)]) * 100 / (materiel[trait] + materiel[ADVERSE(trait)]);
-// if( fou[BLANC]==2 ) materiel[BLANC]++;
-// if( fou[NOIR]==2 ) materiel[NOIR]++;
-return (materiel[trait] - materiel[ADVERSE(trait)]) * 100;
-
-
 if( roi_present[trait]==0 ) return(-999999);
 if( roi_present[3-trait]==0 ) return(999999);
 
@@ -1472,4 +1474,691 @@ if( flag_affiche )
 
 if( trait!=BLANC ) note=-note;
 return( note );
+}
+
+
+#define CASE_VALUE (echiquier[py][px])
+#define CASE_PIECE (CASE_VALUE & PIECE)
+#define CASE_COULEUR (CASE_VALUE & COULEUR)
+#define CASE_PIECE_IS(_piece) (CASE_PIECE == _piece)
+
+#define FOREACH_COLUMN for(int px=1; px<9; px++)
+#define FOR_LINE(_line) for(int px=1, py=_line; px<9; px++)
+#define FOREACH_CASE for (int py=1; py<9; py++) FOREACH_COLUMN
+#define FOREACH_OCCUPIED_CASE FOREACH_CASE if (CASE_VALUE!=0)
+#define FOREACH_PIECE(_piece) FOREACH_CASE if (CASE_PIECE==_piece)
+#define FOREACH_PIECE_COULEUR(_piece, _couleur) FOREACH_CASE if (CASE_VALUE == _piece + _couleur)
+#define SIGN_COTE (CASE_COULEUR==BLANC ? 1 : -1)
+
+
+
+long eval_delta_materiel(void)
+{
+    long score = 0l;
+
+    FOREACH_OCCUPIED_CASE {
+        int piece = CASE_PIECE;
+        if (piece!=ROI) {
+			score += valeur_piece[piece] * SIGN_COTE;
+        }
+    }
+
+	return score;
+}
+
+long eval_delta_bishop_control(void)
+{
+	long score = 0l;
+
+	FOREACH_PIECE(FOU) {
+		for (int delta_y=-1; delta_y<=1; delta_y+=2) for (int delta_x=-1; delta_x<=1; delta_x+=2) {
+			int py2=py+delta_y, px2=px+delta_x;
+			while (py2>0 && py2<9 && px2>0 && px2<9) {
+				score += SIGN_COTE;
+				if (echiquier[py2][px2]!=0) break;
+				py2+=delta_y;
+				px2+=delta_x;
+			}
+		}
+	}
+
+	return score;
+}
+
+long eval_delta_knight_control(void)
+{
+	long score = 0l;
+	int delta_x[8] = {-2, -1, 1, 2, 2, 1, -1, -2};
+	int delta_y[8] = {1, 2, 2, 1, -1, -2, -2, -1};
+
+	FOREACH_PIECE(CAVALIER) {
+		for (int i=0; i<8; i++) if (py+delta_y[i]>0 && py+delta_y[i]<9 && px+delta_x[i]>0 && px+delta_x[i]<9) score += SIGN_COTE;
+	}
+
+	return score;
+}
+
+long eval_delta_rook_open_file(void)
+{
+	// Open File : column without *ANY* pawn
+	long score = 0l;
+
+	FOREACH_PIECE(TOUR) {
+		int py2;
+		// Check if the file is open
+		for (py2=1; py2<9; py2++) if ((echiquier[py2][px] & PIECE)==PION) break;
+		if (py2>=8) score += SIGN_COTE;
+	}
+
+	return score;
+}
+
+long eval_delta_rook_semiopen_file(void)
+{
+	// Semi Open File : column with only ennemy pawn(s), none pawn of us
+	long score = 0l;
+
+	FOREACH_PIECE(TOUR) {
+		int py2;
+		// Check if the file is semi open
+		for (py2=1; py2<9; py2++) if (echiquier[py2][px] == CASE_COULEUR + PION) break;
+		if (py2>=8) score += SIGN_COTE;
+	}
+
+	return score;
+}
+
+long eval_delta_queen_control(void)
+{
+	// Controle par la Dame, toute case y-compris occupée (mais pas au-delà)
+	long score = 0l;
+
+	int delta_x[8] = {-1, 0, 1, 1, -1, -1, 0, 1};
+	int delta_y[8] = {1, 1, 1, 0, 0, -1, -1, -1};
+
+	FOREACH_PIECE(DAME) {
+		for (int i=0; i<8; i++) {
+			int dx = delta_x[i], dy = delta_y[i];
+			int px2=px+dx, py2=py+dy;
+			while (px2>0 && px2<9 && py2>0 && py2<9) {
+				score += SIGN_COTE;
+				if (echiquier[py][px]) break;
+			}
+		}
+	}
+
+	return score;
+}
+
+long eval_delta_pawn_doubled(void)
+{
+	// Deux ou plus pions de la même couleur dans la même colonne
+	long score = 0l;
+
+	FOREACH_COLUMN {
+		for (int couleur=BLANC; couleur<=NOIR; couleur++) {
+			int nb_pions = 0;
+			for (int py=1; py<9; py++) {
+				if (CASE_VALUE == PION + couleur) nb_pions++;
+			}
+			if (nb_pions > 1) {
+				if (couleur==BLANC) score += 1; else score -= 1;
+			}
+		}
+	}
+
+	return score;
+}
+
+long eval_delta_pawn_isolated(void)
+{
+	// Pion sans aucun pion sur les deux colonnes adjacentes, ni avant ni sur la même ligne ni après
+	long score = 0l;
+
+	FOREACH_PIECE(PION) {
+		int pion_soutien = PION + CASE_COULEUR;
+		score -= SIGN_COTE;
+		for(int py2=1; py2<9; py2++) {
+			if (echiquier[py2][px+1] == pion_soutien || echiquier[py2][px-1] == pion_soutien) {
+				score += SIGN_COTE;
+				break;
+			}
+		}
+	}
+
+	return score;
+}
+
+long eval_delta_pawn_retarded(void)
+{
+	// Pion dans pion de soutien dans les 2 colonnes adjacentes et les lignes précédentes
+	long score = 0l;
+
+	FOREACH_PIECE_COULEUR(PION, BLANC) {
+		int pion_soutien = PION + BLANC;
+		score--;
+		for(int py2=py-1; py2>0; py2--) {
+			if (echiquier[py2][px+1] == pion_soutien || echiquier[py2][px-1] == pion_soutien) {
+				score++;
+				break;
+			}
+		}
+	}
+
+	FOREACH_PIECE_COULEUR(PION, NOIR) {
+		int pion_soutien = PION + NOIR;
+		score++;
+		for(int py2=py+1; py2<9; py2++) {
+			if (echiquier[py2][px+1] == pion_soutien || echiquier[py2][px-1] == pion_soutien) {
+				score--;
+				break;
+			}
+		}
+	}
+
+	return score;
+}
+
+long eval_delta_pawn_passed(void)
+{
+	// Pion sans aucun pion ennemi sur sa colonne ni les deux colonnes adjacentes, devant lui
+	long score = 0l;
+
+	FOREACH_PIECE_COULEUR(PION, BLANC) {
+		int pion_opposant = PION + NOIR;
+		score++;
+		for(int py2=py+1; py2<9; py2++) {
+			if (echiquier[py2][px] == pion_opposant || echiquier[py2][px+1] == pion_opposant || echiquier[py2][px-1] == pion_opposant) {
+				score--;
+				break;
+			}
+		}
+	}
+
+	FOREACH_PIECE_COULEUR(PION, NOIR) {
+		int pion_opposant = PION + BLANC;
+		score--;
+		for(int py2=py+1; py2<9; py2++) {
+			if (echiquier[py2][px] == pion_opposant || echiquier[py2][px+1] == pion_opposant || echiquier[py2][px-1] == pion_opposant) {
+				score++;
+				break;
+			}
+		}
+	}
+
+	return score;
+}
+
+long eval_delta_pawn_l6(void)
+{
+	// Pions sur l'antépénultiene ligne
+	long score = 0l;
+
+	FOREACH_PIECE_COULEUR(PION, BLANC) if (py==6) score++;
+	FOREACH_PIECE_COULEUR(PION, NOIR) if (py==3) score--;
+
+	return score;
+}
+
+long eval_delta_pawn_l7(void)
+{
+	// Pions sur l'avant-dernière ligne
+	long score = 0l;
+
+	FOREACH_PIECE_COULEUR(PION, BLANC) if (py==7) score++;
+	FOREACH_PIECE_COULEUR(PION, NOIR) if (py==2) score--;
+
+	return score;
+}
+
+long eval_delta_pawn_chain(void)
+{
+	// Pions soutenus directement
+	long score = 0l;
+
+	FOREACH_PIECE_COULEUR(PION, BLANC) if (echiquier[py-1][px+1] == PION + BLANC || echiquier[py-1][px-1] == PION + BLANC) score++;
+	FOREACH_PIECE_COULEUR(PION, NOIR) if (echiquier[py+1][px+1] == PION + NOIR || echiquier[py+1][px-1] == PION + NOIR) score--;
+
+	return score;
+}
+
+long eval_delta_pawn_control_central(void)
+{
+	// Controle par les pions de : d4, e4, d5, e5
+	long score = 0l;
+
+	int control_y[4] = {4, 4, 5, 5};
+	int control_x[4] = {4, 5, 4, 5};
+	for (int i=0; i<4; i++) {
+		int py = control_y[i];
+		int px = control_x[i];
+		if (echiquier[py-1][px-1] == PION + BLANC || echiquier[py-1][px+1] == PION + BLANC) score++;
+		if (echiquier[py+1][px-1] == PION + NOIR || echiquier[py+1][px+1] == PION + NOIR) score++;
+	}
+
+	return score;
+}
+
+long eval_delta_pawn_control_secondary(void)
+{
+	// Controle par les pions de : c4, d6, e6, f4, c3, d3, e3, f5
+	long score = 0l;
+
+	int control_y[8] = {4, 6, 6, 4, 5, 3, 3, 5};
+	int control_x[8] = {3, 4, 5, 6, 3, 4, 5, 6};
+	for (int i=0; i<8; i++) {
+		int py = control_y[i];
+		int px = control_x[i];
+		if (echiquier[py-1][px-1] == PION + BLANC || echiquier[py-1][px+1] == PION + BLANC) score++;
+		if (echiquier[py+1][px-1] == PION + NOIR || echiquier[py+1][px+1] == PION + NOIR) score++;
+	}
+
+	return score;
+}
+
+long eval_delta_rooks_connected(void)
+{
+	// Tours connectées, en ligne ou en colonnes: +1 si oui (une seule tour testée)
+	long score = 0l;
+
+	int delta_x[4] = {0, 0, 1, -1};
+	int delta_y[4] = {1, -1, 0, 0};
+
+	FOREACH_PIECE_COULEUR(TOUR, BLANC) {
+		for (int i=0; i<4; i++) {
+			int dx = delta_x[i], dy = delta_y[i];
+			int px2=px+dx, py2=py+dy;
+			while (px2>0 && px2<9 && py2>0 && py2<9) {
+				int case_testee = echiquier[py2][px2];
+				if (case_testee) {
+					if (case_testee == TOUR + BLANC) score++;
+					// Next direction, we don't care aabout optimization!
+					break;
+				}
+				px2+=dx; py2+=dy;
+			}
+		}
+
+		// On ne teste pas la seconde tour
+		break;
+	}
+
+	FOREACH_PIECE_COULEUR(TOUR, NOIR) {
+		for (int i=0; i<4; i++) {
+			int dx = delta_x[i], dy = delta_y[i];
+			int px2=px+dx, py2=py+dy;
+			while (px2>0 && px2<9 && py2>0 && py2<9) {
+				int case_testee = echiquier[py2][px2];
+				if (case_testee) {
+					if (case_testee == TOUR + NOIR) score--;
+					// Next direction, we don't care aabout optimization!
+					break;
+				}
+				px2+=dx; py2+=dy;
+			}
+		}
+
+		// On ne teste pas la seconde tour
+		break;
+	}
+
+	return score;
+}
+
+long eval_delta_queen_rooks_connected(void)
+{
+	// Dame connectée aux tours, +1 par tour
+	long score = 0l;
+
+	int delta_x[4] = {0, 0, 1, -1};
+	int delta_y[4] = {1, -1, 0, 0};
+
+	FOREACH_PIECE_COULEUR(DAME, BLANC) {
+		for (int i=0; i<4; i++) {
+			int dx = delta_x[i], dy = delta_y[i];
+			int px2=px+dx, py2=py+dy;
+			while (px2>0 && px2<9 && py2>0 && py2<9) {
+				int case_testee = echiquier[py2][px2];
+				if (case_testee) {
+					if (case_testee == TOUR + BLANC) {
+						score++;
+						if (
+							echiquier[py2+dy][px2+dx] == TOUR + BLANC || 
+							(
+								echiquier[py2+dy][px2+dx] == 0 &&
+								(py2+dy<0 && py2+dy>8 && px2+dx<0 && px2+dx>8) &&
+								echiquier[py2+dy+dy][px2+dx+dx] == TOUR + BLANC
+							)
+						) score+=2;   // Très connectée!
+					}
+					// Next direction, we don't care about optimization!
+					break;
+				}
+				px2+=dx; py2+=dy;
+			}
+		}
+		// Test par Dame, on continue
+	}
+
+	FOREACH_PIECE_COULEUR(DAME, NOIR) {
+		for (int i=0; i<4; i++) {
+			int dx = delta_x[i], dy = delta_y[i];
+			int px2=px+dx, py2=py+dy;
+			while (px2>0 && px2<9 && py2>0 && py2<9) {
+				int case_testee = echiquier[py2][px2];
+				if (case_testee) {
+					if (case_testee == TOUR + NOIR) {
+						score--;
+						if (
+							echiquier[py2+dy][px2+dx] == TOUR + NOIR || 
+							(
+								echiquier[py2+dy][px2+dx] == 0 &&
+								(py2+dy<0 && py2+dy>8 && px2+dx<0 && px2+dx>8) &&
+								echiquier[py2+dy+dy][px2+dx+dx] == TOUR + NOIR
+							)
+						) score-=2;   // Très connectée!
+					}
+					// Next direction, we don't care about optimization!
+					break;
+				}
+				px2+=dx; py2+=dy;
+			}
+		}
+		// Test par Dame, on continue
+	}
+
+	return score;
+}
+
+long eval_delta_queen_bishop_connected(void)
+{
+	// Dame connectée aux tours, +1 par tour
+	long score = 0l;
+
+	int delta_x[4] =  {1, 1, -1, -1};
+	int delta_y[4] =  {1, -1, 1, -1};
+
+	FOREACH_PIECE_COULEUR(DAME, BLANC) {
+		for (int i=0; i<4; i++) {
+			int dx = delta_x[i], dy = delta_y[i];
+			int px2=px+dx, py2=py+dy;
+			while (px2>0 && px2<9 && py2>0 && py2<9) {
+				int case_testee = echiquier[py2][px2];
+				if (case_testee) {
+					if (case_testee == FOU + BLANC) score++;
+					// Next direction, we don't care about optimization!
+					break;
+				}
+				px2+=dx; py2+=dy;
+			}
+		}
+		// Test par Dame, on continue
+	}
+
+	FOREACH_PIECE_COULEUR(DAME, NOIR) {
+		for (int i=0; i<4; i++) {
+			int dx = delta_x[i], dy = delta_y[i];
+			int px2=px+dx, py2=py+dy;
+			while (px2>0 && px2<9 && py2>0 && py2<9) {
+				int case_testee = echiquier[py2][px2];
+				if (case_testee) {
+					if (case_testee == FOU + NOIR)  score--;
+					// Next direction, we don't care about optimization!
+					break;
+				}
+				px2+=dx; py2+=dy;
+			}
+		}
+		// Test par Dame, on continue
+	}
+
+	return score;
+}
+
+long eval_delta_mobilite(void)
+{
+	int nbc_blanc, nbc_noir;
+
+	nbc_blanc = generateur(MAX_LEVELS-2, BLANC);
+	nbc_noir = generateur(MAX_LEVELS-2, NOIR);
+
+	return nbc_blanc - nbc_noir;
+}
+
+long eval_facteur_mobilite(void)
+{
+	int nbc_blanc, nbc_noir;
+
+	nbc_blanc = generateur(MAX_LEVELS-2, BLANC);
+	nbc_noir = generateur(MAX_LEVELS-2, NOIR);
+
+	return (nbc_blanc - nbc_noir) * 100 / (nbc_blanc + nbc_noir +1);
+}
+
+long eval_prise_maxi(void)
+{
+	// La prise maximum 
+	long score = 0;
+
+	FOREACH_OCCUPIED_CASE if(CASE_COULEUR != trait) {
+		long risque = analyse_prise(trait, py, px, QOPTIMAL, 0, 0, FAUX);
+		if (risque>score) score = risque;
+	}
+
+return score;
+}
+
+long eval_delta_king_safety_pawns(void)
+{
+	// Sécurité du roi: protégés par des pions
+	long score = 0l;
+
+	FOREACH_PIECE(ROI) {
+		// Protections par pions
+		int py2 = py + SIGN_COTE;
+		int pion_ami = PION + CASE_COULEUR;
+		for (int px2=px-1; px2<=px+1; px2++) {
+			if (echiquier[py2][px2] != pion_ami) {
+				if (echiquier[py2 + SIGN_COTE][px2] == pion_ami) score -= 1 * SIGN_COTE;
+				else score -= 3 * SIGN_COTE;
+			}
+		}
+	}
+
+	return score;
+}
+
+long eval_delta_king_safety_open_file(void)
+{
+	// Open File : column without *ANY* pawn
+	long score = 0l;
+
+	FOREACH_PIECE(ROI) {
+		int py2;
+		// Check if the file is open
+		for (py2=1; py2<9; py2++) if ((echiquier[py2][px] & PIECE)==PION) break;
+		if (py2>=8) score += SIGN_COTE;
+	}
+
+	return score;
+}
+
+long eval_delta_pawns(void)
+{
+	long score = 0l;
+	FOREACH_PIECE(PION) score += SIGN_COTE;
+	return score;
+}
+
+long eval_delta_rooks(void)
+{
+	long score = 0l;
+	FOREACH_PIECE(TOUR) score += SIGN_COTE;
+	return score;
+}
+
+long eval_delta_knights(void)
+{
+	long score = 0l;
+	FOREACH_PIECE(CAVALIER) score += SIGN_COTE;
+	return score;
+}
+
+long eval_delta_bishops(void)
+{
+	long score = 0l;
+	FOREACH_PIECE(FOU) score += SIGN_COTE;
+	return score;
+}
+
+long eval_delta_queens(void)
+{
+	long score = 0l;
+	FOREACH_PIECE(DAME) score += SIGN_COTE;
+	return score;
+}
+
+
+void new_eval_facteurs(long *facteurs) {
+	// Matériel
+	facteurs[0] = eval_delta_materiel();
+
+
+	// Contrôles
+	facteurs[1] = eval_delta_bishop_control();
+	facteurs[2] = eval_delta_knight_control();
+
+	facteurs[3] = eval_delta_rook_open_file();
+	facteurs[4] = eval_delta_rook_semiopen_file();
+
+	facteurs[5] = eval_delta_queen_control();
+
+
+	// Pions
+	facteurs[6] = eval_delta_pawn_doubled();
+	facteurs[7] = eval_delta_pawn_isolated();
+	facteurs[8] = eval_delta_pawn_retarded();
+	facteurs[9] = eval_delta_pawn_passed();
+
+	facteurs[10] = eval_delta_pawn_l6();    // Pas trop négatif
+	facteurs[11] = eval_delta_pawn_l7();    // Pas trop négatif
+
+	facteurs[12] = eval_delta_pawn_control_central();
+	facteurs[13] = eval_delta_pawn_control_secondary();
+
+	facteurs[14] = eval_delta_pawn_chain();
+
+
+	// Prise maxi
+	facteurs[15] = eval_prise_maxi();
+
+
+	// Coordination
+	facteurs[16] = eval_delta_rooks_connected();  // Pas trop négatif
+	facteurs[17] = eval_delta_queen_rooks_connected();  // Pas trop négatif
+	facteurs[18] = eval_delta_queen_bishop_connected();  // très peu négatif
+
+
+	// Delta Mobilité et Facteur de mobilité
+	facteurs[19] = eval_delta_mobilite();
+	facteurs[20] = eval_facteur_mobilite();
+
+
+	// Sécurité du roi
+	facteurs[21] = eval_delta_king_safety_pawns();
+	facteurs[22] = eval_delta_king_safety_open_file();
+
+	// Nombre de pièces: pions, tours, cavaliers, fous, dames
+	facteurs[23] = eval_delta_pawns();
+	facteurs[24] = eval_delta_rooks();
+	facteurs[25] = eval_delta_knights();
+	facteurs[26] = eval_delta_bishops();
+	facteurs[27] = eval_delta_queens();
+}
+
+
+long new_eval(void)
+{
+	long score = 0l;
+	long facteurs[32];
+	long *parameters;
+
+	long parameters_ouverture[32] = {0, 22, 14, 44, 37, -3, 58, 12, 27, 33, 102, 402, 10, 6, 0, 0, 45, 5, 25, 7, -8, 5, 43, 102, 502, 329, 300, 952, 0, 0, 0, 0};
+	long parameters_milieu[32] = {0, 25, 7, 18, -22, 5, -6, 34, -37, -8, 30, -10, -29, -6, 57, 0, 22, 18, 35, -25, 29, 10, 5, 103, 497, 329, 300, 950, 0, 0, 0, 0};
+	long parameters_finale[32] = {0, 9, 0, 39, 21, 6, 7, 13, -16, 40, 116, 405, 17, 7, 2, 0, 28, 12, 7, 17, 2, 2, 21, 96, 499, 331, 301, 949, 0, 0, 0, 0};
+
+	long original_parameters[32] = {
+		// Matériel 0
+		100,
+		
+		//// Contrôles
+		// Contrôles Fou 1 et Cavalier 2
+		1, 1, 
+		
+		// Contrôles Tours, colonnes ouvertes 3 et semi-ouvertes 4
+		45, 25,
+		
+		// Contrôle par la Dame 5
+		1,
+
+		//// Pions
+		// Pions doublés 6, isolés 7, retardés 8, passés 9
+		15, 20, 15, 35,
+		
+		// Pions L6 10, L7 11
+		100, 400,
+		
+		// Pions contrôle central 12, secondaire 13
+		15, 7,
+		
+		// Chaîne de pions 14
+		7,
+
+		// Prise maxi 15
+		100,
+		
+		//// Coordination des pièces
+		// Tours connectés 16
+		25,
+		
+		// Dame connectée aux tours 17
+		15,
+		
+		// Dame connectée à un fou 18
+		12,
+
+		//// Mobilité
+		// Delta Mobilité 19, Ratio Mobilité 20
+		20, 0,
+
+		//// King Safety
+		// King Safety Pawns 21
+		10,
+		
+		// King Safety Open File 22
+		30,
+
+		// Number of pieces 23..27 : pawns, rooks, knights, bishops, queens
+		0, 0, 0, 0, 0,
+		
+		//// Fill in 28..31, for future use
+		1, 1, 1, 1
+	};
+
+
+	// Choose the right parameter set
+	parameters = parameters_milieu;
+	if (phase == OUVERTURE)
+		parameters = parameters_milieu;
+	else if(phase == FINALE)
+		parameters = parameters_milieu;
+	
+
+	for (int i=0; i<32; i++) facteurs[i] = 0l;
+	new_eval_facteurs(facteurs);
+	score = 0;
+	parameters[15] = 100; // Force prise maxi!
+	for (int i=0; i<32; i++) score += facteurs[i] * parameters[i];
+
+	if (trait==NOIR) return -score; else return score;
 }

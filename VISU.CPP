@@ -47,7 +47,7 @@ textbackground(0);
 textcolor(7);
 
 gotoxy(1,12);
-cprintf("CHESS-C  PARTENAIRE  v2.1.1");
+cprintf("CHESS-C  PARTENAIRE  v%s", VERSION);
 
 tmp_note=old_eval3(FAUX, 1);
 gotoxy(1, 13);

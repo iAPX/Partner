@@ -33,6 +33,7 @@ void lichess(char *moves, int secondes);
 void lichess_preselection(char *moves, int max_nbc);
 void lichess_preselection_facteurs(char *moves);
 void lichess_eval(char *moves);
+void lichess_eval_facteurs(char *moves);
 
 
 // include old files, with main() function renamed dos_main()
@@ -47,6 +48,13 @@ int main(int argc, char *argv[]) {
     for (int c=0; c<MAX_COUPS; c++) facteurs_coups[c] = (long *) malloc(sizeof(long) * MAX_FACTEURS);
 
     if (argc != 1) {
+        if (argc == 2) {
+            if (strcmp(argv[1], "version") == 0 || strcmp(argv[1], "--version") == 0 || strcmp(argv[1], "-v") == 0) {
+                printf("Partner version %s, %s\n", VERSION, VERSION_DATE);
+                return 0;
+            }
+        }
+
         if (argc == 4) {
             if (strcmp(argv[1], "lichess") == 0) {
                 int secondes = atoi(argv[2]);
@@ -60,7 +68,7 @@ int main(int argc, char *argv[]) {
                 lichess_preselection(argv[2], 12);
                 return 0;
             }
-            if (strcmp(argv[1], "facteurs") == 0) {
+            if (strcmp(argv[1], "preselection-facteurs") == 0) {
                 lichess_preselection_facteurs(argv[2]);
                 return 0;
             }
@@ -68,13 +76,30 @@ int main(int argc, char *argv[]) {
                 lichess_eval(argv[2]);
                 return 0;
             }
+            if (strcmp(argv[1], "eval-facteurs") == 0) {
+                lichess_eval_facteurs(argv[2]);
+                return 0;
+            }
+
         }
 
         // Ah?
-        printf("Usage: %s [lichess {secondes_par_coup} \"coups séparés par des espaces \"]\n", argv[0]);
-        printf("Sans options, permet de jouer interactivement dans le terminal.\n\n");
+        printf("Usage: %s [options ...]\n\n", argv[0]);
+
+        printf("* %s : play using the terminal\n", argv[0]);
+        printf("* %s version : displays the version\n", argv[0]);
+        printf("* %s preselection \"moves\" : output the preselection of moves\n", argv[0]);
+        printf("* %s preselection-facteurs \"moves\" : output the preselection's facteurs\n", argv[0]);
+        printf("* %s eval \"moves\" : output the evaluation for the position\n", argv[0]);
+        printf("* %s eval-facteurs \"moves\" : output the evaluation's facteurs\n", argv[0]);
+        printf("* %s lichess {secondes_par_coup} \"coups séparés par des espaces \"\n", argv[0]);
         printf("       secondes_par_coup : 0 pour jouer avec l'algo 90s, plus pour qu'il adapte sa vitesse\n");
-        return 1;
+
+        if (argc != 2 || (strcmp(argv[1], "-h") !=0 && strcmp(argv[1], "--help") !=0 && strcmp(argv[1], "help") !=0)) {
+            // Bad arguments
+            return 1;
+        }
+        return 0;
     }
 
     printf("Mon main a moi!\n");

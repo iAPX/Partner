@@ -1,4 +1,8 @@
 
+#define VERSION "2.1.1"
+#define VERSION_DATE "2025-01-23"
+
+
 // D�finitions standards � employer ...
 #define	VRAI		1
 #define	FAUX		0
@@ -44,7 +48,7 @@
 #define elseif	   else if
 
 
-#define MAX_COUPS		128
+#define MAX_COUPS		512
 #define MAX_LEVELS		64
 #define MAX_FACTEURS	64
 
@@ -96,18 +100,20 @@ int		analyse_niveau1(void);			// Fonction de base de recherche de coups!!!
 int		analyse_niveau2(int elagage);	// Fonction plus puissante de recherche
 
 int		echec(int cote, int sa_py, int sa_px);
+int 	is_echec_cote(int cote);
 long	old_eval(int flag_affiche);
 long	old_eval2(int flag_affiche);
 long	old_eval3(int flag_affiche, int flag_materiel);
+long	new_eval(void);
 
 int	generateur(int niveau, int trait, int dernier_coup=0);
 // int	generateur2(int niveau, int trait);
 void	clouages(int cote, int sa_py, int sa_px);
 void	gene_prises(int niveau, int trait);
 void	tri_coups(int niveau);
-void	preselection(int phase, int trait, int niveau);
-void	preselection_test(int phase, int trait, int niveau);
-void	preselection_facteurs(int trait, int niveau);
+void	preselection(int phase, int trait, int niveau, int coup_repetition=0);
+void	preselection_test(int phase, int trait, int niveau, int coup_repetition);
+void	preselection_facteurs(int trait, int niveau, int coup_repetition=0);
 
 
 int		analyse_prise(int cote, int py, int px, int fl, int py_piece, int px_piece, int flag_affiche);

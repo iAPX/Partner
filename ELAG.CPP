@@ -4,12 +4,12 @@
 */
 
 
-void	preselection_facteurs(int trait);
+void	preselection_facteurs(int trait, int niveau, int coup_repetition);
 void	old_preselection(int phase, int trait, int niveau);
 
 
 // New preselection, using preselection_facteurs()
-void	preselection (int phase, int trait, int niveau) {
+void	preselection (int phase, int trait, int niveau, int coup_repetition) {
 	int nbc=nb_coups[niveau];
 	long facteurs_ouverture[32] = {4, 0, 236, 0, 128, 40, 9, -7, 0, 0, 51, 4, -195, 43, 64, -8, -11, 0, 0, 335, 60, 122, -31, 0, 16, -16, -14, 0, 0, 2, 78, 0};
 	long facteurs_milieu[32] = {0, 0, 110, 0, 132, 2, 14, 18, 0, 0, 832, 5, -91, -9, 64, -8, 1, 0, 0, 200, 60, 100, -32, 32, 14, -16, -13, 1, -1, 8, 77, 0};
@@ -21,7 +21,7 @@ void	preselection (int phase, int trait, int niveau) {
 	if (phase==OUVERTURE) facteurs = facteurs_ouverture;
 	else if(phase==FINALE) facteurs = facteurs_finale;
 
-	preselection_facteurs(trait, niveau);
+	preselection_facteurs(trait, niveau, coup_repetition);
 
 	// Apply facteurs
 	for (int p = 0; p < nbc; p++) {
@@ -29,8 +29,9 @@ void	preselection (int phase, int trait, int niveau) {
 		for (int i=0; i<32; i++) {
 			somme += facteurs[i] * facteurs_coups[p][i];
 		}
+		valeur_coup[niveau][p] = somme;
     }
-
+	
 	// On trie et c'est fini!
 	tri_coups(niveau);
 }
@@ -195,7 +196,7 @@ tri_coups(niveau);
 
 
 
-void	preselection_test(int phase, int trait)
+void	preselection_test(int phase, int trait, int coup_repetition)
 { // Note les coups existants et choisi ceux � traiter !!!
 int		niveau = 1;
 
@@ -220,7 +221,7 @@ int		poids_milieu_deux_fous_sortis = 0;   // 0
 int 	poids_milieu_pour_dame_sortie = 30;   // 30
 int 	poids_milieu_echec_adverse = 20;      // 20
 
-
+//// printf("preselection test. Coup repetition = %d\n", coup_repetition); exit(0);
 //	Initialisation de constantes
 for(py=1; py<9; py++) for(px=1; px<9; px++) if(echiquier[py][px]==ROI + ADVERSE(trait)) { roi_py=py; roi_px=px; py=8; px=8; }
 nbc=nb_coups[niveau];
@@ -229,6 +230,15 @@ if( trait==BLANC ) {ligne=1; ligne2=2;} else {ligne=8; ligne2=7;}
 for( p=0; p<nbc; p++)
 	{ // Calcule une valeur additive ...
 	coup=liste_coups[niveau][p];
+
+	// Note un coup amenant à la Nulle!
+	if (coup == coup_repetition) {
+		// En fait les facteurs sont déjà initialisés à 0!!!
+		printf("coup repetition trouve !\n"); exit(0);
+		valeur_coup[niveau][p] = 0l;
+		continue;
+	}
+
 	px=coup % 10; coup=(coup-px) / 10;
 	py=coup % 10; coup=(coup-py) / 10;
 	px2=coup % 10; coup=(coup-px2)/10;
@@ -358,7 +368,7 @@ tri_coups(niveau);
 
 
 
-void	preselection_facteurs(int trait, int niveau)
+void	preselection_facteurs(int trait, int niveau, int coup_repetition)
 { // Note les coups existants et choisi ceux � traiter !!!
 int		p, q, valeur, py, px, py2, px2, py3, px3;
 int		nbc, nbc1, nbc2, coup, coup2;
@@ -394,6 +404,14 @@ for( p=0; p<nbc; p++)
 	for (int i=0; i<=MAX_FACTEURS; i++) facteurs_coups[p][i] = 0;
 
 	coup=liste_coups[niveau][p];
+
+	// Note un coup amenant à la Nulle!
+	if (coup == coup_repetition) {
+		// En fait les facteurs sont déjà initialisés à 0!!!
+		valeur_coup[niveau][p] = 0l;
+		continue;
+	}
+
 	px=coup % 10; coup=(coup-px) / 10;
 	py=coup % 10; coup=(coup-py) / 10;
 	px2=coup % 10; coup=(coup-px2)/10;

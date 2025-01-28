@@ -16,15 +16,15 @@ client = berserk.Client(session)
 seconds_per_move = {}
 
 
-def safe_make_move(client, game_id, coup, retries=5):
-    for attempt in range(retries):
+def safe_make_move(client, game_id, coup, retries=3):
+    for retry in range(retries):
         try:
             print("Send move to Lichess...")
             client.bots.make_move(game_id, coup)
             return True  # Move was successful
         except Exception as e:
             print(f"Unexpected error: {e}")
-        time.sleep(0.1)  # Wait before retrying
+        time.sleep(retry + 1)  # Wait before retrying: 1s, 2s, 3s etc.
     print("Failed to make move after retries.")
     return False
 
@@ -71,6 +71,8 @@ def find_opening(moves):
             ORDER BY coup.score DESC
         """
         coups = cursor.execute(query, (board.fen(),)).fetchall()
+
+        cursor.close()
         conn.close()
 
         if coups:
@@ -120,7 +122,8 @@ class Game(threading.Thread):
                 print("Premier coup de Partner: " + coup + "\n")
                 # coup = input().strip()
                 try:
-                    client.bots.make_move(game_id, coup)
+                    # client.bots.make_move(game_id, coup)
+                    safe_make_move(client, game_id, coup)
                 except Exception as e:
                     print("Premier coup Exception : " + str(e))
             else:
@@ -179,7 +182,8 @@ class Game(threading.Thread):
             if coup is not None:
                 # print("Opening found: " + coup)
                 print("Coup Libraries: " + coup + ", temps: " + str((end_time - start_time) / 1_000_000) + "ms\n")
-                client.bots.make_move(game_id, coup)
+                # client.bots.make_move(game_id, coup)
+                safe_make_move(client, game_id, coup)
                 return
             # Avoid losing time in opening again
             print("Sortie des bibliothèques d'ouverture")
@@ -190,6 +194,7 @@ class Game(threading.Thread):
                 f.write(' '.join(moves) + "\n")
         
         start_time = time.perf_counter_ns()
+        print("Partner avec " + str(self.seconds) + "s ...")
         output = subprocess.check_output(
             ["../portable/partner.lichess", "lichess", str(self.seconds), event['moves']],
             encoding="ascii",
@@ -217,7 +222,7 @@ class Game(threading.Thread):
             ## coup = input().strip()
             try:
                 # client.bots.make_move(game_id, coup)
-                safe_make_move(client, game_id, coup, retries=5)
+                safe_make_move(client, game_id, coup)
             except Exception as e:
                 print("Coup erreur : " + str(e))
 
