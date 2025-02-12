@@ -21,5 +21,5 @@ A new life for old code!
 
 [Go to the documentation](./doc/README.md).
 
-[Play against Partner "PARTNER3615DIAGO" on Lichess.com](https://lichess.org/@/PARTNER3615DIAGO)<br/>
-To use the original settings, choose unrated game. Maximum 1 hour per side.<br/>
+[Play with Partner "PARTNER3615DIAGO" on Lichess](https://lichess.org/@/PARTNER3615DIAGO)<br/>
+To use the original settings, select unrated game. Maximum 1 hour per side.<br/>
