@@ -13,10 +13,13 @@ It was mainly available through 3615 DIAGO, but also under other names such as 3
 Some other French online services developped their own chess engine or used Novag Scorpio 68000 through their RJ12 serial communication port.<br/>
 Chess.com was created 13 years later, Lichess 16 years later.
 
-So 30 years laters, retrieving my old and very ugly code, I feel it's cool to have it available in open-source, but why not use it with modern Chess websites, such as Lichess or Chess.com?<br/>
+So 30 years laters, retrieving my old and very ugly code, I feel it's cool to have it available in open-source, but why not use it with modern Chess websites such as Lichess?<br/>
 A new life for old code!
 
 
 [license is MIT](./LICENSE).<br/>
 
 [Go to the documentation](./doc/README.md).
+
+[Play against Partner "PARTNER3615DIAGO" on Lichess.com](https://lichess.org/@/PARTNER3615DIAGO)<br/>
+To use the original settings, choose unrated game. Maximum 1 hour per side.<br/>
